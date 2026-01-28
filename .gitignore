@@ -1,0 +1,23 @@
+# Build output
+build/
+*.pbo
+*.bisign
+
+# PBO Manager temp files
+*.pbo.*.tmp
+
+# Arma 3 Tools
+*.biprivatekey
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Logs
+*.log
+*.rpt

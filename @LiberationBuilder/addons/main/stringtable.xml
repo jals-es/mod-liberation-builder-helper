@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project name="LBH">
+    <Package name="Main">
+        <!-- General -->
+        <Key ID="STR_LBH_ModName">
+            <English>Liberation Builder Helper</English>
+            <Spanish>Asistente de Construcción Liberation</Spanish>
+        </Key>
+        <Key ID="STR_LBH_ModDescription">
+            <English>A mod to help build KP Liberation missions by collecting classnames from 3DEN Editor and ACE Arsenal.</English>
+            <Spanish>Un mod para ayudar a construir misiones KP Liberation recolectando classnames desde el editor 3DEN y ACE Arsenal.</Spanish>
+        </Key>
+
+        <!-- Presets -->
+        <Key ID="STR_LBH_Preset_BLUFOR">
+            <English>BLUFOR</English>
+            <Spanish>BLUFOR</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Preset_OPFOR">
+            <English>OPFOR</English>
+            <Spanish>OPFOR</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Preset_Resistance">
+            <English>Resistance</English>
+            <Spanish>Resistencia</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Preset_Civilians">
+            <English>Civilians</English>
+            <Spanish>Civiles</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Preset_Arsenal">
+            <English>Arsenal</English>
+            <Spanish>Arsenal</Spanish>
+        </Key>
+
+        <!-- Categories -->
+        <Key ID="STR_LBH_Cat_InfantryUnits">
+            <English>Infantry Units</English>
+            <Spanish>Unidades de Infantería</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_LightVehicles">
+            <English>Light Vehicles</English>
+            <Spanish>Vehículos Ligeros</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_HeavyVehicles">
+            <English>Heavy Vehicles</English>
+            <Spanish>Vehículos Pesados</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_AirVehicles">
+            <English>Air Vehicles</English>
+            <Spanish>Vehículos Aéreos</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_StaticWeapons">
+            <English>Static Weapons</English>
+            <Spanish>Armas Estáticas</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Buildings">
+            <English>Buildings</English>
+            <Spanish>Edificios</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Support">
+            <English>Support Vehicles</English>
+            <Spanish>Vehículos de Soporte</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Weapons">
+            <English>Weapons</English>
+            <Spanish>Armas</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Magazines">
+            <English>Magazines</English>
+            <Spanish>Cargadores</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Items">
+            <English>Items</English>
+            <Spanish>Objetos</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cat_Backpacks">
+            <English>Backpacks</English>
+            <Spanish>Mochilas</Spanish>
+        </Key>
+
+        <!-- UI Labels -->
+        <Key ID="STR_LBH_UI_Title">
+            <English>Liberation Builder Helper</English>
+            <Spanish>Asistente de Construcción Liberation</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Preset">
+            <English>Preset:</English>
+            <Spanish>Preset:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Category">
+            <English>Category:</English>
+            <Spanish>Categoría:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Search">
+            <English>Search:</English>
+            <Spanish>Buscar:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_AddManual">
+            <English>Add Manual</English>
+            <Spanish>Añadir Manual</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Remove">
+            <English>Remove</English>
+            <Spanish>Eliminar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Export">
+            <English>Export</English>
+            <Spanish>Exportar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Clear">
+            <English>Clear All</English>
+            <Spanish>Limpiar Todo</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Close">
+            <English>Close</English>
+            <Spanish>Cerrar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_UI_Ready">
+            <English>Ready</English>
+            <Spanish>Listo</Spanish>
+        </Key>
+
+        <!-- Cost Dialog -->
+        <Key ID="STR_LBH_Cost_Title">
+            <English>Set Resource Costs</English>
+            <Spanish>Establecer Costos de Recursos</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cost_Supplies">
+            <English>Supplies:</English>
+            <Spanish>Suministros:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cost_Ammo">
+            <English>Ammunition:</English>
+            <Spanish>Munición:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cost_Fuel">
+            <English>Fuel:</English>
+            <Spanish>Combustible:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cost_OK">
+            <English>OK</English>
+            <Spanish>Aceptar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Cost_Cancel">
+            <English>Cancel</English>
+            <Spanish>Cancelar</Spanish>
+        </Key>
+
+        <!-- Category Select Dialog -->
+        <Key ID="STR_LBH_CatSel_Title">
+            <English>Select Category</English>
+            <Spanish>Seleccionar Categoría</Spanish>
+        </Key>
+        <Key ID="STR_LBH_CatSel_Select">
+            <English>Select</English>
+            <Spanish>Seleccionar</Spanish>
+        </Key>
+
+        <!-- Menu Items -->
+        <Key ID="STR_LBH_Menu_Main">
+            <English>Liberation Builder</English>
+            <Spanish>Constructor Liberation</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddBLUFOR">
+            <English>Add to BLUFOR</English>
+            <Spanish>Añadir a BLUFOR</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddOPFOR">
+            <English>Add to OPFOR</English>
+            <Spanish>Añadir a OPFOR</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddResistance">
+            <English>Add to Resistance</English>
+            <Spanish>Añadir a Resistencia</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddCivilians">
+            <English>Add to Civilians</English>
+            <Spanish>Añadir a Civiles</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddArsenal">
+            <English>Add to Arsenal</English>
+            <Spanish>Añadir al Arsenal</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_OpenPanel">
+            <English>Open Management Panel</English>
+            <Spanish>Abrir Panel de Gestión</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_ExportAll">
+            <English>Export All Presets</English>
+            <Spanish>Exportar Todos los Presets</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_AddAuto">
+            <English>Add (Auto-detect)</English>
+            <Spanish>Añadir (Auto-detectar)</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_SelectCategory">
+            <English>Add to Category...</English>
+            <Spanish>Añadir a Categoría...</Spanish>
+        </Key>
+
+        <!-- Notifications -->
+        <Key ID="STR_LBH_Notify_Added">
+            <English>Added: %1</English>
+            <Spanish>Añadido: %1</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_Removed">
+            <English>Removed: %1</English>
+            <Spanish>Eliminado: %1</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_Cleared">
+            <English>Cleared: %1</English>
+            <Spanish>Limpiado: %1</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_Exists">
+            <English>Classname %1 already exists!</English>
+            <Spanish>¡El classname %1 ya existe!</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_NoSelection">
+            <English>No objects selected!</English>
+            <Spanish>¡No hay objetos seleccionados!</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_Exported">
+            <English>Exported %1 lines to clipboard!</English>
+            <Spanish>¡Exportadas %1 líneas al portapapeles!</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_DataLoaded">
+            <English>Data loaded successfully</English>
+            <Spanish>Datos cargados correctamente</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_NoData">
+            <English>No saved data found</English>
+            <Spanish>No se encontraron datos guardados</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Notify_Welcome">
+            <English>Liberation Builder Helper loaded. Use Tools > Liberation Builder to add classnames.</English>
+            <Spanish>Asistente Liberation cargado. Usa Herramientas > Constructor Liberation para añadir classnames.</Spanish>
+        </Key>
+
+        <!-- Keybinds -->
+        <Key ID="STR_LBH_Keybind_ArsenalExport">
+            <English>Export Arsenal Loadout</English>
+            <Spanish>Exportar Equipamiento del Arsenal</Spanish>
+        </Key>
+    </Package>
+</Project>
