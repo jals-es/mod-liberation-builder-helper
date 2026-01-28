@@ -236,13 +236,19 @@ jobs:
           fi
 
           # Create VDF file for workshop upload
+          CONTENT_PATH="${{ github.workspace }}/build/@LiberationBuilder"
+
           echo '"workshopitem"' > workshop.vdf
           echo '{' >> workshop.vdf
           echo "  \"appid\" \"107410\"" >> workshop.vdf
           echo "  \"publishedfileid\" \"$STEAM_WORKSHOP_ID\"" >> workshop.vdf
-          echo "  \"contentfolder\" \"${{ github.workspace }}/build/@LiberationBuilder\"" >> workshop.vdf
+          echo "  \"contentfolder\" \"$CONTENT_PATH\"" >> workshop.vdf
           echo "  \"changenote\" \"v${{ steps.version.outputs.version }} - Automatic release\"" >> workshop.vdf
           echo '}' >> workshop.vdf
+
+          echo "Content folder contents:"
+          ls -la "$CONTENT_PATH"
+          ls -la "$CONTENT_PATH/addons/"
 
           echo "VDF content:"
           cat workshop.vdf
