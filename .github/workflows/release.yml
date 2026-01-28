@@ -252,14 +252,12 @@ jobs:
           $timestamp = [Convert]::ToInt64("01" + $binaryStr, 2)
 
           # Create meta.cpp
-          $metaCpp = @"
-protocol = 1;
-publishedid = $env:STEAM_WORKSHOP_ID;
-name = "Liberation Builder Helper";
-timestamp = $timestamp;
-"@
+          $metaCpp = "protocol = 1;`n"
+          $metaCpp += "publishedid = $env:STEAM_WORKSHOP_ID;`n"
+          $metaCpp += "name = `"Liberation Builder Helper`";`n"
+          $metaCpp += "timestamp = $timestamp;"
 
-          $metaCpp | Out-File -FilePath "build/$env:MOD_NAME/meta.cpp" -Encoding ASCII
+          $metaCpp | Out-File -FilePath "build/$env:MOD_NAME/meta.cpp" -Encoding ASCII -NoNewline
           echo "meta.cpp generated:"
           Get-Content "build/$env:MOD_NAME/meta.cpp"
 
@@ -282,17 +280,15 @@ timestamp = $timestamp;
           $vdfPath = "${{ github.workspace }}\workshop.vdf".Replace("/", "\")
 
           # Create VDF file (same format as Arma 3 Publisher)
-          $vdf = @"
-"workshopitem"
-{
-    "appid"            "107410"
-    "publishedfileid"  "$env:STEAM_WORKSHOP_ID"
-    "contentfolder"    "$contentPath"
-    "changenote"       "v${{ steps.version.outputs.version }} - Automatic release"
-}
-"@
+          $vdf = "`"workshopitem`"`n"
+          $vdf += "{`n"
+          $vdf += "    `"appid`"            `"107410`"`n"
+          $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
+          $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
+          $vdf += "    `"changenote`"       `"v${{ steps.version.outputs.version }} - Automatic release`"`n"
+          $vdf += "}"
 
-          $vdf | Out-File -FilePath $vdfPath -Encoding ASCII
+          $vdf | Out-File -FilePath $vdfPath -Encoding ASCII -NoNewline
 
           echo "=== VDF Content ==="
           Get-Content $vdfPath
