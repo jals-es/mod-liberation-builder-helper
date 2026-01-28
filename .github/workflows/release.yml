@@ -30,12 +30,47 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version detected: $VERSION"
 
-          # Parse version components (0.0.0.1 format)
+          # Parse version components (MAJOR.MINOR.PATCH.BUILD format)
           IFS='.' read -r MAJOR MINOR PATCH BUILD <<< "$VERSION"
           echo "major=$MAJOR" >> $GITHUB_OUTPUT
           echo "minor=$MINOR" >> $GITHUB_OUTPUT
           echo "patch=$PATCH" >> $GITHUB_OUTPUT
           echo "build=$BUILD" >> $GITHUB_OUTPUT
+
+          # Semantic version without build (for Workshop comparison)
+          echo "semver=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Get previous version
+        id: prev_version
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found"
+            echo "prev_semver=" >> $GITHUB_OUTPUT
+            echo "is_semver_change=true" >> $GITHUB_OUTPUT
+          else
+            # Remove 'v' prefix and get version
+            PREV_VERSION="${PREV_TAG#v}"
+            echo "Previous version: $PREV_VERSION"
+
+            # Parse previous version
+            IFS='.' read -r PREV_MAJOR PREV_MINOR PREV_PATCH PREV_BUILD <<< "$PREV_VERSION"
+            PREV_SEMVER="$PREV_MAJOR.$PREV_MINOR.$PREV_PATCH"
+            echo "prev_semver=$PREV_SEMVER" >> $GITHUB_OUTPUT
+
+            # Compare semantic versions (MAJOR.MINOR.PATCH)
+            NEW_SEMVER="${{ steps.version.outputs.semver }}"
+
+            if [ "$PREV_SEMVER" != "$NEW_SEMVER" ]; then
+              echo "Semantic version changed: $PREV_SEMVER -> $NEW_SEMVER"
+              echo "is_semver_change=true" >> $GITHUB_OUTPUT
+            else
+              echo "Only build number changed (semver unchanged: $PREV_SEMVER)"
+              echo "is_semver_change=false" >> $GITHUB_OUTPUT
+            fi
+          fi
 
       - name: Check if tag already exists
         id: check_tag
@@ -66,13 +101,6 @@ jobs:
           sed -i "s/^#define VERSION_STR.*/#define VERSION_STR \"$VERSION\"/" "$FILE"
 
           echo "Updated $FILE to version $VERSION"
-
-      - name: Install HEMTT
-        if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          curl -L https://github.com/BrettMayworksyup/HEMTT/releases/latest/download/hemtt-linux-x64 -o hemtt
-          chmod +x hemtt
-          sudo mv hemtt /usr/local/bin/
 
       - name: Install armake2
         if: steps.check_tag.outputs.exists == 'false'
@@ -165,6 +193,9 @@ jobs:
             - Arma 3 (v2.00+)
             - CBA_A3 (required)
             - ACE3 (optional)
+
+            ---
+            **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && '✅ Updated' || '⏭️ Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
             build/${{ env.MOD_NAME }}/addons/main.pbo
@@ -174,36 +205,47 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ============================================
-      # STEAM WORKSHOP UPLOAD (Optional)
+      # STEAM WORKSHOP UPLOAD
       # ============================================
-      # To enable:
-      # 1. Go to repo Settings > Secrets and variables > Actions
-      # 2. Add variable: ENABLE_STEAM_UPLOAD = true
-      # 3. Add secrets:
-      #    - STEAM_USERNAME: Your Steam username
-      #    - STEAM_PASSWORD: Your Steam password
-      #    - STEAM_WORKSHOP_ID: Workshop item ID
+      # Only uploads when MAJOR, MINOR, or PATCH changes
+      # Skipped for BUILD-only changes
+      #
+      # To enable, add these secrets to your repo:
+      #   - STEAM_USERNAME: Your Steam username
+      #   - STEAM_PASSWORD: Your Steam password
+      #   - STEAM_WORKSHOP_ID: Workshop item ID
       # ============================================
 
       - name: Setup SteamCMD
-        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
+        if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
         uses: CyberAndrii/setup-steamcmd@v1
+        continue-on-error: true
 
-      - name: Create Workshop VDF
-        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
+      - name: Upload to Steam Workshop
+        if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+          STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
         run: |
+          # Check if Steam secrets are configured
+          if [ -z "$STEAM_USERNAME" ] || [ -z "$STEAM_PASSWORD" ] || [ -z "$STEAM_WORKSHOP_ID" ]; then
+            echo "::warning::Steam Workshop secrets not configured. Skipping upload."
+            echo "To enable, add STEAM_USERNAME, STEAM_PASSWORD, and STEAM_WORKSHOP_ID secrets."
+            exit 0
+          fi
+
+          # Create VDF file for workshop upload
           cat > workshop.vdf << EOF
           "workshopitem"
           {
             "appid" "107410"
-            "publishedfileid" "${{ secrets.STEAM_WORKSHOP_ID }}"
+            "publishedfileid" "$STEAM_WORKSHOP_ID"
             "contentfolder" "${{ github.workspace }}/build/$MOD_NAME"
             "changenote" "v${{ steps.version.outputs.version }} - Automatic release"
           }
           EOF
 
-      - name: Upload to Steam Workshop
-        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
-        run: |
-          steamcmd +login "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
+          echo "Uploading to Steam Workshop (ID: $STEAM_WORKSHOP_ID)..."
+          steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
         continue-on-error: true
