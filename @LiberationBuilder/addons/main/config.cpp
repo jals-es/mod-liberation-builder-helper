@@ -89,14 +89,6 @@ class Cfg3DEN {
         };
     };
 
-    class MenuStrip {
-        class MenuBar {
-            class Tools {
-                items[] += {"LBH_Menu"};
-            };
-        };
-    };
-
     class Menu {
         // Main Liberation Builder menu
         class LBH_Menu {
@@ -310,10 +302,25 @@ class Cfg3DEN {
             action = "call LBH_fnc_openCategorySelect;";
         };
     };
+};
 
-    class ContextMenu {
-        class Object {
-            items[] += {"LBH_Context_Menu"};
+// 3DEN Menu Bar and Context Menu
+class ctrlMenuStrip;
+class display3DEN {
+    class Controls {
+        class MenuStrip: ctrlMenuStrip {
+            class Items {
+                class Tools {
+                    items[] += {"LBH_Menu"};
+                };
+            };
+        };
+    };
+    class ContextMenu: ctrlMenuStrip {
+        class Items {
+            class Object {
+                items[] += {"LBH_Context_Menu"};
+            };
         };
     };
 };
