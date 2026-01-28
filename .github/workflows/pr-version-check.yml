@@ -1,0 +1,73 @@
+name: PR Version Check
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR version
+        id: pr_version
+        run: |
+          PR_VERSION=$(cat version.txt | tr -d '[:space:]')
+          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
+          echo "PR version: $PR_VERSION"
+
+      - name: Get master version
+        id: master_version
+        run: |
+          git fetch origin master
+          MASTER_VERSION=$(git show origin/master:version.txt | tr -d '[:space:]')
+          echo "version=$MASTER_VERSION" >> $GITHUB_OUTPUT
+          echo "Master version: $MASTER_VERSION"
+
+      - name: Check version was modified
+        run: |
+          PR_VERSION="${{ steps.pr_version.outputs.version }}"
+          MASTER_VERSION="${{ steps.master_version.outputs.version }}"
+
+          if [ "$PR_VERSION" == "$MASTER_VERSION" ]; then
+            echo "::error::Version has not been modified. Please update version.txt"
+            exit 1
+          fi
+
+          echo "Version changed: $MASTER_VERSION -> $PR_VERSION"
+
+      - name: Compare versions
+        run: |
+          PR_VERSION="${{ steps.pr_version.outputs.version }}"
+          MASTER_VERSION="${{ steps.master_version.outputs.version }}"
+
+          # Parse versions into arrays
+          IFS='.' read -ra PR_PARTS <<< "$PR_VERSION"
+          IFS='.' read -ra MASTER_PARTS <<< "$MASTER_VERSION"
+
+          # Compare each component
+          is_greater=false
+          for i in 0 1 2 3; do
+            pr_num=${PR_PARTS[$i]:-0}
+            master_num=${MASTER_PARTS[$i]:-0}
+
+            if [ "$pr_num" -gt "$master_num" ]; then
+              is_greater=true
+              break
+            elif [ "$pr_num" -lt "$master_num" ]; then
+              echo "::error::PR version ($PR_VERSION) is not greater than master version ($MASTER_VERSION)"
+              exit 1
+            fi
+          done
+
+          if [ "$is_greater" = false ]; then
+            echo "::error::PR version ($PR_VERSION) must be greater than master version ($MASTER_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ Version check passed: $MASTER_VERSION -> $PR_VERSION"
