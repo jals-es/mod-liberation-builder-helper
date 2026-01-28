@@ -236,15 +236,23 @@ jobs:
           fi
 
           # Create VDF file for workshop upload
-          cat > workshop.vdf << EOF
-          "workshopitem"
-          {
-            "appid" "107410"
-            "publishedfileid" "$STEAM_WORKSHOP_ID"
-            "contentfolder" "${{ github.workspace }}/build/$MOD_NAME"
-            "changenote" "v${{ steps.version.outputs.version }} - Automatic release"
-          }
-          EOF
+          cat > workshop.vdf << 'VDFEOF'
+"workshopitem"
+{
+  "appid" "107410"
+  "publishedfileid" "WORKSHOP_ID_PLACEHOLDER"
+  "contentfolder" "CONTENT_FOLDER_PLACEHOLDER"
+  "changenote" "VERSION_PLACEHOLDER"
+}
+VDFEOF
+
+          # Replace placeholders
+          sed -i "s|WORKSHOP_ID_PLACEHOLDER|$STEAM_WORKSHOP_ID|g" workshop.vdf
+          sed -i "s|CONTENT_FOLDER_PLACEHOLDER|${{ github.workspace }}/build/@LiberationBuilder|g" workshop.vdf
+          sed -i "s|VERSION_PLACEHOLDER|v${{ steps.version.outputs.version }} - Automatic release|g" workshop.vdf
+
+          echo "VDF content:"
+          cat workshop.vdf
 
           echo "Uploading to Steam Workshop (ID: $STEAM_WORKSHOP_ID)..."
           steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
