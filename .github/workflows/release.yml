@@ -195,7 +195,7 @@ jobs:
             - ACE3 (optional)
 
             ---
-            **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && '✅ Updated' || '⏭️ Skipped (build-only change)' }}
+            **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && '🚀 Auto-upload attempted' || '⏭️ Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
             build/${{ env.MOD_NAME }}/addons/main.pbo
