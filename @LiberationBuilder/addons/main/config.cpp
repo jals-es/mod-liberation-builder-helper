@@ -89,9 +89,11 @@ class Cfg3DEN {
         };
     };
 
-    class MenuBar {
-        class Tools {
-            items[] += {"LBH_Menu"};
+    class MenuStrip {
+        class MenuBar {
+            class Tools {
+                items[] += {"LBH_Menu"};
+            };
         };
     };
 
@@ -287,38 +289,33 @@ class Cfg3DEN {
             picture = "\A3\ui_f\data\gui\cfg\hints\icon_text\bexport_ca.paa";
             action = "call LBH_fnc_exportPreset;";
         };
-    };
-};
 
-// Context menu for 3DEN entities
-class ctrlMenuStrip;
-class display3DEN {
-    class ContextMenu : ctrlMenuStrip {
-        class Items {
-            class Object {
-                items[] += {"LBH_Context_Menu"};
+        // Context menu items
+        class LBH_Context_Menu {
+            text = "Liberation Builder";
+            picture = "";
+            items[] = {
+                "LBH_Context_AddAuto",
+                "LBH_Context_SelectCategory"
             };
         };
+
+        class LBH_Context_AddAuto {
+            text = "Add (Auto-detect)";
+            action = "[true] call LBH_fnc_addSelectedObjects;";
+        };
+
+        class LBH_Context_SelectCategory {
+            text = "Add to Category...";
+            action = "call LBH_fnc_openCategorySelect;";
+        };
     };
-};
 
-class LBH_Context_Menu {
-    text = "Liberation Builder";
-    picture = "";
-    items[] = {
-        "LBH_Context_AddAuto",
-        "LBH_Context_SelectCategory"
+    class ContextMenu {
+        class Object {
+            items[] += {"LBH_Context_Menu"};
+        };
     };
-};
-
-class LBH_Context_AddAuto {
-    text = "Add (Auto-detect)";
-    action = "[true] call LBH_fnc_addSelectedObjects;";
-};
-
-class LBH_Context_SelectCategory {
-    text = "Add to Category...";
-    action = "call LBH_fnc_openCategorySelect;";
 };
 
 // Dialogs
