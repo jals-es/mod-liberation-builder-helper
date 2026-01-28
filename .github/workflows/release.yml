@@ -176,18 +176,21 @@ jobs:
       # ============================================
       # STEAM WORKSHOP UPLOAD (Optional)
       # ============================================
-      # To enable, add these secrets to your repo:
-      # - STEAM_USERNAME: Your Steam username
-      # - STEAM_PASSWORD: Your Steam password
-      # - STEAM_WORKSHOP_ID: Workshop item ID (get after first manual publish)
+      # To enable:
+      # 1. Go to repo Settings > Secrets and variables > Actions
+      # 2. Add variable: ENABLE_STEAM_UPLOAD = true
+      # 3. Add secrets:
+      #    - STEAM_USERNAME: Your Steam username
+      #    - STEAM_PASSWORD: Your Steam password
+      #    - STEAM_WORKSHOP_ID: Workshop item ID
       # ============================================
 
       - name: Setup SteamCMD
-        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
         uses: CyberAndrii/setup-steamcmd@v1
 
       - name: Create Workshop VDF
-        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
         run: |
           cat > workshop.vdf << EOF
           "workshopitem"
@@ -200,7 +203,7 @@ jobs:
           EOF
 
       - name: Upload to Steam Workshop
-        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        if: steps.check_tag.outputs.exists == 'false' && vars.ENABLE_STEAM_UPLOAD == 'true'
         run: |
           steamcmd +login "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
         continue-on-error: true
