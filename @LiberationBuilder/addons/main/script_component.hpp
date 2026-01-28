@@ -3,13 +3,13 @@
 #define COMPONENT_BEAUTIFIED Liberation Builder Helper
 
 #define PREFIX LBH
-#define MAJOR 1
+#define MAJOR 0
 #define MINOR 0
 #define PATCH 0
-#define BUILD 0
+#define BUILD 1
 
 #define VERSION MAJOR.MINOR.PATCH.BUILD
-#define VERSION_STR "1.0.0.0"
+#define VERSION_STR "0.0.0.1"
 #define VERSION_AR MAJOR,MINOR,PATCH,BUILD
 
 // Macro for function name
