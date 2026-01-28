@@ -6,10 +6,10 @@
 #define MAJOR 0
 #define MINOR 0
 #define PATCH 0
-#define BUILD 1
+#define BUILD 2
 
 #define VERSION MAJOR.MINOR.PATCH.BUILD
-#define VERSION_STR "0.0.0.1"
+#define VERSION_STR "0.0.0.2"
 #define VERSION_AR MAJOR,MINOR,PATCH,BUILD
 
 // Macro for function name
