@@ -11,10 +11,15 @@ env:
   MOD_NAME: "@LiberationBuilder"
 
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      semver: ${{ steps.version.outputs.semver }}
+      is_semver_change: ${{ steps.prev_version.outputs.is_semver_change }}
+      tag_exists: ${{ steps.check_tag.outputs.exists }}
 
     steps:
       - name: Checkout repository
@@ -106,43 +111,36 @@ jobs:
 
           echo "Updated $FILE to version $VERSION"
 
-      - name: Download and setup HEMTT
+      - name: Install armake2
         if: steps.check_tag.outputs.exists == 'false'
-        shell: pwsh
         run: |
-          # Download HEMTT for Windows
-          Invoke-WebRequest -Uri "https://github.com/BrettMayson/HEMTT/releases/latest/download/hemtt-windows-x64.exe" -OutFile "hemtt.exe"
-          echo "HEMTT downloaded"
+          curl -L https://github.com/KoffeinFlummi/armake/releases/download/v0.6.3/armake-v0.6.3-linux-x64.tar.gz | tar xz
+          chmod +x armake
+          sudo mv armake /usr/local/bin/
 
-      - name: Build PBO with HEMTT
+      - name: Build PBO
         if: steps.check_tag.outputs.exists == 'false'
-        shell: pwsh
         run: |
-          # Create build directory
-          New-Item -ItemType Directory -Force -Path "build/$env:MOD_NAME/addons"
-
-          # Build PBO with HEMTT
-          ./hemtt.exe pack "$env:MOD_NAME/addons/main" --output "build/$env:MOD_NAME/addons/main.pbo"
-
-          # Copy mod.cpp and preview image
-          Copy-Item "$env:MOD_NAME/mod.cpp" "build/$env:MOD_NAME/"
-          if (Test-Path "$env:MOD_NAME/workshop_preview.png") {
-            Copy-Item "$env:MOD_NAME/workshop_preview.png" "build/$env:MOD_NAME/"
-          }
-
+          mkdir -p build/$MOD_NAME/addons
+          armake pack -f "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
+          cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
+          if [ -f "$MOD_NAME/workshop_preview.png" ]; then
+            cp "$MOD_NAME/workshop_preview.png" "build/$MOD_NAME/"
+          fi
           echo "PBO built successfully"
-          Get-ChildItem "build/$env:MOD_NAME" -Recurse
+          ls -la "build/$MOD_NAME/"
+          ls -la "build/$MOD_NAME/addons/"
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
-        shell: pwsh
         run: |
-          Compress-Archive -Path "build/$env:MOD_NAME" -DestinationPath "LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip"
-          Get-ChildItem "*.zip"
+          cd build
+          zip -r "../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
+          cd ..
+          ls -la *.zip
 
       - name: Commit version update
         if: steps.check_tag.outputs.exists == 'false'
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -158,7 +156,6 @@ jobs:
 
       - name: Create tag
         if: steps.check_tag.outputs.exists == 'false'
-        shell: bash
         run: |
           git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
           git push origin "v${{ steps.version.outputs.version }}"
@@ -166,7 +163,6 @@ jobs:
       - name: Generate changelog
         if: steps.check_tag.outputs.exists == 'false'
         id: changelog
-        shell: bash
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
@@ -203,7 +199,7 @@ jobs:
             - ACE3 (optional)
 
             ---
-            **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && '🚀 Auto-upload attempted' || '⏭️ Skipped (build-only change)' }}
+            **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && 'Auto-upload attempted' || 'Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
             build/${{ env.MOD_NAME }}/addons/main.pbo
@@ -212,29 +208,52 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ============================================
-      # STEAM WORKSHOP UPLOAD
-      # ============================================
-      # Only uploads when MAJOR, MINOR, or PATCH changes
-      # Skipped for BUILD-only changes
-      #
-      # To enable, add these secrets to your repo:
-      #   - STEAM_USERNAME: Your Steam username
-      #   - STEAM_PASSWORD: Your Steam password
-      #   - STEAM_WORKSHOP_ID: Workshop item ID
-      # ============================================
-
-      - name: Download SteamCMD
+      - name: Upload build artifacts for Steam job
         if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-build
+          path: build/${{ env.MOD_NAME }}/
+          retention-days: 1
+
+  # ============================================
+  # STEAM WORKSHOP UPLOAD (Windows)
+  # ============================================
+  # Only uploads when MAJOR, MINOR, or PATCH changes
+  # Skipped for BUILD-only changes
+  #
+  # To enable, add these secrets to your repo:
+  #   - STEAM_USERNAME: Your Steam username
+  #   - STEAM_PASSWORD: Your Steam password
+  #   - STEAM_WORKSHOP_ID: Workshop item ID
+  # ============================================
+
+  steam-upload:
+    needs: build
+    if: needs.build.outputs.tag_exists == 'false' && needs.build.outputs.is_semver_change == 'true'
+    runs-on: windows-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mod-build
+          path: build/${{ env.MOD_NAME }}
+
+      - name: Verify downloaded files
         shell: pwsh
         run: |
-          # Download SteamCMD
+          echo "=== Downloaded Files ==="
+          Get-ChildItem "build/$env:MOD_NAME" -Recurse
+
+      - name: Download SteamCMD
+        shell: pwsh
+        run: |
           Invoke-WebRequest -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile "steamcmd.zip"
           Expand-Archive -Path "steamcmd.zip" -DestinationPath "steamcmd"
           echo "SteamCMD downloaded and extracted"
 
       - name: Generate meta.cpp
-        if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
         shell: pwsh
         env:
           STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
@@ -262,12 +281,12 @@ jobs:
           Get-Content "build/$env:MOD_NAME/meta.cpp"
 
       - name: Generate VDF and Upload to Steam Workshop
-        if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
         shell: pwsh
         env:
           STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
           STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
           STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
           # Check if Steam secrets are configured
           if (-not $env:STEAM_USERNAME -or -not $env:STEAM_PASSWORD -or -not $env:STEAM_WORKSHOP_ID) {
@@ -285,7 +304,7 @@ jobs:
           $vdf += "    `"appid`"            `"107410`"`n"
           $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
           $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
-          $vdf += "    `"changenote`"       `"v${{ steps.version.outputs.version }} - Automatic release`"`n"
+          $vdf += "    `"changenote`"       `"v$env:VERSION - Automatic release`"`n"
           $vdf += "}"
 
           $vdf | Out-File -FilePath $vdfPath -Encoding ASCII -NoNewline
