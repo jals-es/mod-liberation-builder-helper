@@ -12,7 +12,7 @@ env:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: write
 
@@ -25,6 +25,7 @@ jobs:
 
       - name: Get version from file
         id: version
+        shell: bash
         run: |
           VERSION=$(cat version.txt | tr -d '[:space:]')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -42,6 +43,7 @@ jobs:
 
       - name: Get previous version
         id: prev_version
+        shell: bash
         run: |
           # Get the previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -74,6 +76,7 @@ jobs:
 
       - name: Check if tag already exists
         id: check_tag
+        shell: bash
         run: |
           if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
@@ -85,6 +88,7 @@ jobs:
 
       - name: Update script_component.hpp
         if: steps.check_tag.outputs.exists == 'false'
+        shell: bash
         run: |
           FILE="$MOD_NAME/addons/main/script_component.hpp"
           VERSION="${{ steps.version.outputs.version }}"
@@ -102,42 +106,43 @@ jobs:
 
           echo "Updated $FILE to version $VERSION"
 
-      - name: Install armake2
+      - name: Download and setup HEMTT
         if: steps.check_tag.outputs.exists == 'false'
+        shell: pwsh
         run: |
-          # Install Rust and armake2
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          cargo install armake2
+          # Download HEMTT for Windows
+          Invoke-WebRequest -Uri "https://github.com/BrettMayson/HEMTT/releases/latest/download/hemtt-windows-x64.exe" -OutFile "hemtt.exe"
+          echo "HEMTT downloaded"
 
-      - name: Build PBO
+      - name: Build PBO with HEMTT
         if: steps.check_tag.outputs.exists == 'false'
+        shell: pwsh
         run: |
-          source $HOME/.cargo/env
-
           # Create build directory
-          mkdir -p build/$MOD_NAME/addons
+          New-Item -ItemType Directory -Force -Path "build/$env:MOD_NAME/addons"
 
-          # Build PBO with armake2
-          armake2 pack "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
+          # Build PBO with HEMTT
+          ./hemtt.exe pack "$env:MOD_NAME/addons/main" --output "build/$env:MOD_NAME/addons/main.pbo"
 
           # Copy mod.cpp and preview image
-          cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
-          cp "$MOD_NAME/workshop_preview.png" "build/$MOD_NAME/" 2>/dev/null || true
+          Copy-Item "$env:MOD_NAME/mod.cpp" "build/$env:MOD_NAME/"
+          if (Test-Path "$env:MOD_NAME/workshop_preview.png") {
+            Copy-Item "$env:MOD_NAME/workshop_preview.png" "build/$env:MOD_NAME/"
+          }
 
           echo "PBO built successfully"
-          ls -la build/$MOD_NAME/addons/
+          Get-ChildItem "build/$env:MOD_NAME" -Recurse
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
+        shell: pwsh
         run: |
-          cd build
-          zip -r "../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
-          cd ..
-          ls -la *.zip
+          Compress-Archive -Path "build/$env:MOD_NAME" -DestinationPath "LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip"
+          Get-ChildItem "*.zip"
 
       - name: Commit version update
         if: steps.check_tag.outputs.exists == 'false'
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -153,6 +158,7 @@ jobs:
 
       - name: Create tag
         if: steps.check_tag.outputs.exists == 'false'
+        shell: bash
         run: |
           git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
           git push origin "v${{ steps.version.outputs.version }}"
@@ -160,6 +166,7 @@ jobs:
       - name: Generate changelog
         if: steps.check_tag.outputs.exists == 'false'
         id: changelog
+        shell: bash
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
@@ -217,43 +224,103 @@ jobs:
       #   - STEAM_WORKSHOP_ID: Workshop item ID
       # ============================================
 
-      - name: Setup SteamCMD
+      - name: Download SteamCMD
         if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
-        uses: CyberAndrii/setup-steamcmd@v1
-        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Download SteamCMD
+          Invoke-WebRequest -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile "steamcmd.zip"
+          Expand-Archive -Path "steamcmd.zip" -DestinationPath "steamcmd"
+          echo "SteamCMD downloaded and extracted"
 
-      - name: Upload to Steam Workshop
+      - name: Generate meta.cpp
         if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
+        shell: pwsh
+        env:
+          STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
+        run: |
+          # Generate timestamp like .NET DateTime.ToBinary()
+          # 621355968000000000 = ticks from 0001-01-01 to 1970-01-01
+          # 10000 = ticks per millisecond
+          $unixTicks = [bigint]621355968000000000
+          $ticksPerMs = [bigint]10000
+          $nowMs = [bigint][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+          $ticks = ($nowMs * $ticksPerMs) + $unixTicks
+
+          # Add UTC flag (01 in binary at the start, making it 64 bits total)
+          $binaryStr = [Convert]::ToString([long]$ticks, 2).PadLeft(62, '0')
+          $timestamp = [Convert]::ToInt64("01" + $binaryStr, 2)
+
+          # Create meta.cpp
+          $metaCpp = @"
+protocol = 1;
+publishedid = $env:STEAM_WORKSHOP_ID;
+name = "Liberation Builder Helper";
+timestamp = $timestamp;
+"@
+
+          $metaCpp | Out-File -FilePath "build/$env:MOD_NAME/meta.cpp" -Encoding ASCII
+          echo "meta.cpp generated:"
+          Get-Content "build/$env:MOD_NAME/meta.cpp"
+
+      - name: Generate VDF and Upload to Steam Workshop
+        if: steps.check_tag.outputs.exists == 'false' && steps.prev_version.outputs.is_semver_change == 'true'
+        shell: pwsh
         env:
           STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
           STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
           STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
         run: |
           # Check if Steam secrets are configured
-          if [ -z "$STEAM_USERNAME" ] || [ -z "$STEAM_PASSWORD" ] || [ -z "$STEAM_WORKSHOP_ID" ]; then
-            echo "::warning::Steam Workshop secrets not configured. Skipping upload."
-            echo "To enable, add STEAM_USERNAME, STEAM_PASSWORD, and STEAM_WORKSHOP_ID secrets."
+          if (-not $env:STEAM_USERNAME -or -not $env:STEAM_PASSWORD -or -not $env:STEAM_WORKSHOP_ID) {
+            Write-Warning "Steam Workshop secrets not configured. Skipping upload."
+            Write-Host "To enable, add STEAM_USERNAME, STEAM_PASSWORD, and STEAM_WORKSHOP_ID secrets."
             exit 0
-          fi
+          }
 
-          # Create VDF file for workshop upload
-          CONTENT_PATH="${{ github.workspace }}/build/@LiberationBuilder"
+          $contentPath = "${{ github.workspace }}\build\$env:MOD_NAME".Replace("/", "\")
+          $vdfPath = "${{ github.workspace }}\workshop.vdf".Replace("/", "\")
 
-          echo '"workshopitem"' > workshop.vdf
-          echo '{' >> workshop.vdf
-          echo "  \"appid\" \"107410\"" >> workshop.vdf
-          echo "  \"publishedfileid\" \"$STEAM_WORKSHOP_ID\"" >> workshop.vdf
-          echo "  \"contentfolder\" \"$CONTENT_PATH\"" >> workshop.vdf
-          echo "  \"changenote\" \"v${{ steps.version.outputs.version }} - Automatic release\"" >> workshop.vdf
-          echo '}' >> workshop.vdf
+          # Create VDF file (same format as Arma 3 Publisher)
+          $vdf = @"
+"workshopitem"
+{
+    "appid"            "107410"
+    "publishedfileid"  "$env:STEAM_WORKSHOP_ID"
+    "contentfolder"    "$contentPath"
+    "changenote"       "v${{ steps.version.outputs.version }} - Automatic release"
+}
+"@
 
-          echo "Content folder contents:"
-          ls -la "$CONTENT_PATH"
-          ls -la "$CONTENT_PATH/addons/"
+          $vdf | Out-File -FilePath $vdfPath -Encoding ASCII
 
-          echo "VDF content:"
-          cat workshop.vdf
+          echo "=== VDF Content ==="
+          Get-Content $vdfPath
 
-          echo "Uploading to Steam Workshop (ID: $STEAM_WORKSHOP_ID)..."
-          steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
-        continue-on-error: true
+          echo ""
+          echo "=== Content Folder ==="
+          Get-ChildItem $contentPath -Recurse
+
+          echo ""
+          echo "=== Starting SteamCMD ==="
+
+          # Run SteamCMD
+          $steamcmdPath = "${{ github.workspace }}\steamcmd\steamcmd.exe"
+
+          # First run to update SteamCMD itself
+          & $steamcmdPath +quit
+
+          # Now login and upload
+          & $steamcmdPath +login $env:STEAM_USERNAME $env:STEAM_PASSWORD +workshop_build_item $vdfPath +quit
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning "SteamCMD exited with code $LASTEXITCODE"
+            # Check for error logs
+            $logPath = "${{ github.workspace }}\steamcmd\logs\stderr.txt"
+            if (Test-Path $logPath) {
+              echo "=== SteamCMD Error Log ==="
+              Get-Content $logPath
+            }
+          } else {
+            echo "Upload completed successfully!"
+          }
