@@ -1,0 +1,134 @@
+name: Release on Version Change
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'version.txt'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version from file
+        id: version
+        run: |
+          VERSION=$(cat version.txt | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version detected: $VERSION"
+
+          # Parse version components (0.0.0.1 format)
+          IFS='.' read -r MAJOR MINOR PATCH BUILD <<< "$VERSION"
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.version.outputs.version }} does not exist"
+          fi
+
+      - name: Update script_component.hpp
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          FILE="@LiberationBuilder/addons/main/script_component.hpp"
+          VERSION="${{ steps.version.outputs.version }}"
+          MAJOR="${{ steps.version.outputs.major }}"
+          MINOR="${{ steps.version.outputs.minor }}"
+          PATCH="${{ steps.version.outputs.patch }}"
+          BUILD="${{ steps.version.outputs.build }}"
+
+          # Update version defines
+          sed -i "s/^#define MAJOR.*/#define MAJOR $MAJOR/" "$FILE"
+          sed -i "s/^#define MINOR.*/#define MINOR $MINOR/" "$FILE"
+          sed -i "s/^#define PATCH.*/#define PATCH $PATCH/" "$FILE"
+          sed -i "s/^#define BUILD.*/#define BUILD $BUILD/" "$FILE"
+          sed -i "s/^#define VERSION_STR.*/#define VERSION_STR \"$VERSION\"/" "$FILE"
+
+          echo "Updated $FILE to version $VERSION"
+          cat "$FILE" | grep -E "^#define (MAJOR|MINOR|PATCH|BUILD|VERSION_STR)"
+
+      - name: Commit version update
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "@LiberationBuilder/addons/main/script_component.hpp"
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update version to ${{ steps.version.outputs.version }}"
+            git push
+          fi
+
+      - name: Create tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Generate changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "changelog=Initial release" >> $GITHUB_OUTPUT
+          else
+            # Get commit messages since last tag
+            CHANGELOG=$(git log --pretty=format:"- %s" $PREV_TAG..HEAD~1 | head -20)
+            # Escape for GitHub Actions
+            CHANGELOG="${CHANGELOG//'%'/'%25'}"
+            CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+            CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+            echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Liberation Builder Helper v${{ steps.version.outputs.version }}
+
+            ### Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Installation
+            1. Download and extract the release
+            2. Pack `@LiberationBuilder/addons/main/` into PBO using PBO Manager
+            3. Copy `@LiberationBuilder` folder to your Arma 3 directory
+            4. Enable the mod in Arma 3 Launcher
+
+            ### Requirements
+            - Arma 3 (v2.00+)
+            - CBA_A3 (required)
+            - ACE3 (optional)
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
