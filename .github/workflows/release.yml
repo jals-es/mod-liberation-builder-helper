@@ -7,6 +7,9 @@ on:
     paths:
       - 'version.txt'
 
+env:
+  MOD_NAME: "@LiberationBuilder"
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -48,7 +51,7 @@ jobs:
       - name: Update script_component.hpp
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          FILE="@LiberationBuilder/addons/main/script_component.hpp"
+          FILE="$MOD_NAME/addons/main/script_component.hpp"
           VERSION="${{ steps.version.outputs.version }}"
           MAJOR="${{ steps.version.outputs.major }}"
           MINOR="${{ steps.version.outputs.minor }}"
@@ -63,7 +66,46 @@ jobs:
           sed -i "s/^#define VERSION_STR.*/#define VERSION_STR \"$VERSION\"/" "$FILE"
 
           echo "Updated $FILE to version $VERSION"
-          cat "$FILE" | grep -E "^#define (MAJOR|MINOR|PATCH|BUILD|VERSION_STR)"
+
+      - name: Install HEMTT
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          curl -L https://github.com/BrettMayworksyup/HEMTT/releases/latest/download/hemtt-linux-x64 -o hemtt
+          chmod +x hemtt
+          sudo mv hemtt /usr/local/bin/
+
+      - name: Install armake2
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # Install Rust and armake2
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          cargo install armake2
+
+      - name: Build PBO
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          source $HOME/.cargo/env
+
+          # Create build directory
+          mkdir -p build/$MOD_NAME/addons
+
+          # Build PBO with armake2
+          armake2 pack "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
+
+          # Copy mod.cpp
+          cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
+
+          echo "PBO built successfully"
+          ls -la build/$MOD_NAME/addons/
+
+      - name: Create release ZIP
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          cd build
+          zip -r "../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
+          cd ..
+          ls -la *.zip
 
       - name: Commit version update
         if: steps.check_tag.outputs.exists == 'false'
@@ -71,9 +113,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add "@LiberationBuilder/addons/main/script_component.hpp"
+          git add "$MOD_NAME/addons/main/script_component.hpp"
 
-          # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
@@ -91,15 +132,12 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         id: changelog
         run: |
-          # Get previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
           if [ -z "$PREV_TAG" ]; then
             echo "changelog=Initial release" >> $GITHUB_OUTPUT
           else
-            # Get commit messages since last tag
             CHANGELOG=$(git log --pretty=format:"- %s" $PREV_TAG..HEAD~1 | head -20)
-            # Escape for GitHub Actions
             CHANGELOG="${CHANGELOG//'%'/'%25'}"
             CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
             CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
@@ -119,16 +157,50 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
 
             ### Installation
-            1. Download and extract the release
-            2. Pack `@LiberationBuilder/addons/main/` into PBO using PBO Manager
-            3. Copy `@LiberationBuilder` folder to your Arma 3 directory
-            4. Enable the mod in Arma 3 Launcher
+            1. Download `LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip`
+            2. Extract to your Arma 3 directory
+            3. Enable `@LiberationBuilder` in Arma 3 Launcher
 
             ### Requirements
             - Arma 3 (v2.00+)
             - CBA_A3 (required)
             - ACE3 (optional)
+          files: |
+            LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
+            build/${{ env.MOD_NAME }}/addons/main.pbo
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ============================================
+      # STEAM WORKSHOP UPLOAD (Optional)
+      # ============================================
+      # To enable, add these secrets to your repo:
+      # - STEAM_USERNAME: Your Steam username
+      # - STEAM_PASSWORD: Your Steam password
+      # - STEAM_WORKSHOP_ID: Workshop item ID (get after first manual publish)
+      # ============================================
+
+      - name: Setup SteamCMD
+        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        uses: CyberAndrii/setup-steamcmd@v1
+
+      - name: Create Workshop VDF
+        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        run: |
+          cat > workshop.vdf << EOF
+          "workshopitem"
+          {
+            "appid" "107410"
+            "publishedfileid" "${{ secrets.STEAM_WORKSHOP_ID }}"
+            "contentfolder" "${{ github.workspace }}/build/$MOD_NAME"
+            "changenote" "v${{ steps.version.outputs.version }} - Automatic release"
+          }
+          EOF
+
+      - name: Upload to Steam Workshop
+        if: steps.check_tag.outputs.exists == 'false' && secrets.STEAM_USERNAME != ''
+        run: |
+          steamcmd +login "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" +workshop_build_item "${{ github.workspace }}/workshop.vdf" +quit
+        continue-on-error: true
