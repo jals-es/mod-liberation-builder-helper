@@ -111,18 +111,18 @@ jobs:
 
           echo "Updated $FILE to version $VERSION"
 
-      - name: Install armake2
+      - name: Install JAPM (PBO packer)
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          curl -L https://github.com/KoffeinFlummi/armake/releases/download/v0.6.3/armake-v0.6.3-linux-x64.tar.gz | tar xz
-          chmod +x armake
-          sudo mv armake /usr/local/bin/
+          curl -L https://github.com/RaJiska/JAPM/releases/download/v0.8/JAPM_Linux_x86_64 -o japm
+          chmod +x japm
+          sudo mv japm /usr/local/bin/
 
       - name: Build PBO
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           mkdir -p build/$MOD_NAME/addons
-          armake pack -f "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
+          japm "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
           cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
           if [ -f "$MOD_NAME/workshop_preview.png" ]; then
             cp "$MOD_NAME/workshop_preview.png" "build/$MOD_NAME/"
