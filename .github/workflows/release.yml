@@ -236,20 +236,13 @@ jobs:
           fi
 
           # Create VDF file for workshop upload
-          cat > workshop.vdf << 'VDFEOF'
-"workshopitem"
-{
-  "appid" "107410"
-  "publishedfileid" "WORKSHOP_ID_PLACEHOLDER"
-  "contentfolder" "CONTENT_FOLDER_PLACEHOLDER"
-  "changenote" "VERSION_PLACEHOLDER"
-}
-VDFEOF
-
-          # Replace placeholders
-          sed -i "s|WORKSHOP_ID_PLACEHOLDER|$STEAM_WORKSHOP_ID|g" workshop.vdf
-          sed -i "s|CONTENT_FOLDER_PLACEHOLDER|${{ github.workspace }}/build/@LiberationBuilder|g" workshop.vdf
-          sed -i "s|VERSION_PLACEHOLDER|v${{ steps.version.outputs.version }} - Automatic release|g" workshop.vdf
+          echo '"workshopitem"' > workshop.vdf
+          echo '{' >> workshop.vdf
+          echo "  \"appid\" \"107410\"" >> workshop.vdf
+          echo "  \"publishedfileid\" \"$STEAM_WORKSHOP_ID\"" >> workshop.vdf
+          echo "  \"contentfolder\" \"${{ github.workspace }}/build/@LiberationBuilder\"" >> workshop.vdf
+          echo "  \"changenote\" \"v${{ steps.version.outputs.version }} - Automatic release\"" >> workshop.vdf
+          echo '}' >> workshop.vdf
 
           echo "VDF content:"
           cat workshop.vdf
