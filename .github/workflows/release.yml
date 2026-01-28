@@ -121,8 +121,9 @@ jobs:
           # Build PBO with armake2
           armake2 pack "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
 
-          # Copy mod.cpp
+          # Copy mod.cpp and preview image
           cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
+          cp "$MOD_NAME/workshop_preview.png" "build/$MOD_NAME/" 2>/dev/null || true
 
           echo "PBO built successfully"
           ls -la build/$MOD_NAME/addons/
