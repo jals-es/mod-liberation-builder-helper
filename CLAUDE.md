@@ -116,9 +116,53 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 
 4. **ACE Arsenal**: Ctrl+Shift+E para exportar loadout actual
 
+## CI/CD y Versionado
+
+### GitHub Actions
+- **release.yml**: Se dispara al cambiar `version.txt` en master
+  - Build job (Ubuntu): Compila PBO con JAPM, crea GitHub Release
+  - Steam-upload job (Windows): Sube a Steam Workshop con SteamCMD
+
+- **pr-version-check.yml**: Verifica en PRs a master que la version sea mayor
+
+### Versionado
+- Formato: `MAJOR.MINOR.PATCH.BUILD` en `version.txt`
+- El workflow actualiza automaticamente `script_component.hpp`
+- Solo sube a Steam Workshop si cambia MAJOR.MINOR.PATCH (no BUILD)
+
+### Ramas
+- `master`: Releases (protegida conceptualmente)
+- `develop`: Desarrollo activo
+
+### Secrets de GitHub
+- `STEAM_USERNAME`: locunar
+- `STEAM_PASSWORD`: [configurado]
+- `STEAM_WORKSHOP_ID`: 3655694577
+
+## Estado Actual (2026-01-29)
+
+### Funcionando
+- Mod carga correctamente en Arma 3
+- Menu aparece en Tools > Liberation Builder
+- CI/CD completo: version.txt -> GitHub Release -> Steam Workshop
+- PR checks para verificar version
+
+### Pendiente de Mejora
+- Refinar submenus del menu principal
+- Menu contextual (click derecho) - estructura base hecha
+- Testing de funciones SQF (addClassname, export, etc.)
+- UI del panel de gestion
+
+### Problemas Resueltos
+- `$PBOPREFIX$` sin newline al final
+- Estructura de menus 3DEN: usar `display3DEN > Controls > MenuStrip > Items`
+- JAPM para empaquetar PBOs (armake ya no funciona)
+
 ## Notas para Claude
 
 1. Los datos se guardan en `profileNamespace` con clave `LBH_savedData`
 2. La exportacion copia al portapapeles en formato SQF compatible con KP Liberation
 3. La deteccion automatica usa `isKindOf` y herencia de clases
 4. El mod requiere CBA_A3 para Event Handlers extendidos
+5. Los menus de 3DEN deben definirse en `display3DEN`, no en `Cfg3DEN > Menu`
+6. Para testing local: empaquetar con PBO Manager desde `@LiberationBuilder/addons/main/`
