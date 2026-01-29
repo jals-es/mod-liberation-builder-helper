@@ -4,12 +4,12 @@
 
 #define PREFIX LBH
 #define MAJOR 0
-#define MINOR 0
-#define PATCH 15
+#define MINOR 1
+#define PATCH 0
 #define BUILD 0
 
 #define VERSION MAJOR.MINOR.PATCH.BUILD
-#define VERSION_STR "0.0.15.0"
+#define VERSION_STR "0.1.0.0"
 #define VERSION_AR MAJOR,MINOR,PATCH,BUILD
 
 // Macro for function name
