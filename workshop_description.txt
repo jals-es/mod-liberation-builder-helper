@@ -78,6 +78,6 @@ Accede desde [b]Tools > Liberation Builder[/b] en el editor 3DEN.
 Los datos se guardan automáticamente en profileNamespace y persisten entre sesiones de Arma 3.
 
 [h2]Links[/h2]
-[url=https://github.com/JuanAntonio-dot/mod-liberation-builder-helper]GitHub - Código Fuente y Reportar Bugs[/url]
+[url=https://github.com/jals-es/mod-liberation-builder-helper]GitHub - Código Fuente y Reportar Bugs[/url]
 
 [i]Desarrollado para uso con KP Liberation[/i]
