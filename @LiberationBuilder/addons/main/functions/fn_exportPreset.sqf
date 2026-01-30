@@ -127,7 +127,7 @@ copyToClipboard _result;
 
 // Show notification
 private _lineCount = count _output;
-[format ["Exported %1 lines to clipboard!", _lineCount], "PLAIN DOWN", 3] call LBH_fnc_showNotification;
+[format ["Exported %1 lines to clipboard!", _lineCount], 0, 3] call LBH_fnc_showNotification;
 
 diag_log format ["[LBH] Exported preset(s): %1 (%2 lines)", _presetsToExport, _lineCount];
 

@@ -15,7 +15,7 @@
 // Get selected objects
 private _selected = get3DENSelected "object";
 if (count _selected == 0) exitWith {
-    ["No objects selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No objects selected!", 1, 2] call LBH_fnc_showNotification;
 };
 
 // Create dialog

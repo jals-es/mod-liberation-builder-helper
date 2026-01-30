@@ -20,7 +20,7 @@ private _selIndex = lbCurSel _list;
 
 if (_selIndex < 0) exitWith {
     closeDialog 0;
-    ["No category selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No category selected!", 1, 2] call LBH_fnc_showNotification;
 };
 
 // Parse data (format: "preset|category")

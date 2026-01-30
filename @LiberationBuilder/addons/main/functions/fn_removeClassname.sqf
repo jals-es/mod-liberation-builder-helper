@@ -92,7 +92,7 @@ if (_removed) then {
     LBH_data set [_preset, _presetData];
     call LBH_fnc_saveData;
     diag_log format ["[LBH] Removed %1 from %2/%3", _classname, _preset, _category];
-    [format ["Removed: %1", _classname], "PLAIN DOWN", 1.5] call LBH_fnc_showNotification;
+    [format ["Removed: %1", _classname], 0, 1.5] call LBH_fnc_showNotification;
 };
 
 _removed

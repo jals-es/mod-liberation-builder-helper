@@ -25,12 +25,13 @@ params [
 private _selected = get3DENSelected "object";
 
 if (count _selected == 0) exitWith {
-    ["No objects selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No objects selected!", 1, 2] call LBH_fnc_showNotification;
     0
 };
 
 private _addedCount = 0;
 private _skippedCount = 0;
+private _costQueue = [];
 
 {
     private _entity = _x;
@@ -74,27 +75,15 @@ private _skippedCount = 0;
         continue;
     };
 
-    // Handle cost format - need to ask for costs
+    // Handle cost format - queue for cost dialog
     if (_formatType isEqualTo "cost") then {
-        // Store pending data for cost dialog
-        LBH_pendingCost = [_targetPreset, _targetCategory, _classname];
-
-        // Open cost dialog
-        createDialog "LBH_CostDialog";
-
-        // Set classname display
-        private _display = uiNamespace getVariable ["LBH_CostDialog", displayNull];
-        if (!isNull _display) then {
-            (_display displayCtrl IDC_COST_CLASSNAME) ctrlSetText _classname;
-        };
-
-        // For multiple objects with cost, only process first one via dialog
-        // Rest will be queued or skipped for now
-        if (_forEachIndex > 0) then {
-            // Add with default costs for subsequent objects
-            if ([_targetPreset, _targetCategory, _classname, [0, 0, 0]] call LBH_fnc_addClassname) then {
-                _addedCount = _addedCount + 1;
-            };
+        // Check if already exists
+        if ([_targetPreset, _targetCategory, _classname] call LBH_fnc_hasClassname) then {
+            [format ["Classname %1 already exists in %2/%3", _classname, _targetPreset, _targetCategory], 1, 2] call LBH_fnc_showNotification;
+            _skippedCount = _skippedCount + 1;
+        } else {
+            // Add to queue for cost dialog processing
+            _costQueue pushBack [_targetPreset, _targetCategory, _classname];
         };
     } else {
         // Simple or single format - add directly
@@ -106,13 +95,32 @@ private _skippedCount = 0;
     };
 } forEach _selected;
 
-// Show summary notification
-if (_addedCount > 0 || _skippedCount > 0) then {
-    private _msg = format ["Added: %1", _addedCount];
-    if (_skippedCount > 0) then {
-        _msg = _msg + format [" (Skipped: %1)", _skippedCount];
+// Process cost queue - store it globally and open first dialog
+if (count _costQueue > 0) then {
+    LBH_pendingCostQueue = _costQueue;
+
+    // Process first item in queue
+    private _first = _costQueue select 0;
+    _first params ["_preset", "_cat", "_cls"];
+
+    LBH_pendingCost = [_preset, _cat, _cls];
+
+    // Open cost dialog
+    createDialog "LBH_CostDialog";
+
+    private _display = uiNamespace getVariable ["LBH_CostDialog", displayNull];
+    if (!isNull _display) then {
+        (_display displayCtrl IDC_COST_CLASSNAME) ctrlSetText _cls;
     };
-    [_msg, "PLAIN DOWN", 2] call LBH_fnc_showNotification;
+} else {
+    // No cost items, show summary
+    if (_addedCount > 0 || _skippedCount > 0) then {
+        private _msg = format ["Added: %1", _addedCount];
+        if (_skippedCount > 0) then {
+            _msg = _msg + format [" (Skipped: %1)", _skippedCount];
+        };
+        [_msg, 0, 2] call LBH_fnc_showNotification;
+    };
 };
 
 _addedCount
