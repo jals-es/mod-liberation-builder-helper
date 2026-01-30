@@ -1,6 +1,6 @@
 /*
  * Function: LBH_fnc_addManualClassname
- * Description: Manually add a classname via text input
+ * Description: Manually add a classname via text input dialog
  *
  * Arguments: None (uses UI controls)
  *
@@ -23,7 +23,7 @@ private _presetIndex = lbCurSel _presetCombo;
 private _categoryIndex = lbCurSel _categoryCombo;
 
 if (_presetIndex < 0 || _categoryIndex < 0) exitWith {
-    ["No category selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No category selected!", 1, 2] call LBH_fnc_showNotification;
 };
 
 private _preset = _presetCombo lbData _presetIndex;
@@ -38,30 +38,45 @@ private _formatType = "simple";
     };
 } forEach _categories;
 
-// Prompt for classname
-["Enter classname:", "", {
-    params ["_classname", "_args"];
-    _args params ["_preset", "_category", "_formatType"];
+// Set up callback for when text is entered
+LBH_textInputCallback = [
+    {
+        params ["_classname", "_args"];
+        _args params ["_preset", "_category", "_formatType"];
 
-    if (_classname isEqualTo "") exitWith {};
+        if (_classname isEqualTo "") exitWith {};
 
-    if (_formatType isEqualTo "cost") then {
-        // Store pending data for cost dialog
-        LBH_pendingCost = [_preset, _category, _classname];
+        // Trim whitespace
+        _classname = _classname trim [" ", 0];
+        _classname = _classname trim [" ", 1];
 
-        // Open cost dialog
-        createDialog "LBH_CostDialog";
+        if (_classname isEqualTo "") exitWith {};
 
-        // Set classname display
-        private _costDisplay = uiNamespace getVariable ["LBH_CostDialog", displayNull];
-        if (!isNull _costDisplay) then {
-            (_costDisplay displayCtrl IDC_COST_CLASSNAME) ctrlSetText _classname;
+        if (_formatType isEqualTo "cost") then {
+            // Store pending data for cost dialog
+            LBH_pendingCost = [_preset, _category, _classname];
+            LBH_pendingCostQueue = [[_preset, _category, _classname]];
+
+            // Open cost dialog
+            createDialog "LBH_CostDialog";
+
+            // Set classname display
+            private _costDisplay = uiNamespace getVariable ["LBH_CostDialog", displayNull];
+            if (!isNull _costDisplay) then {
+                (_costDisplay displayCtrl IDC_COST_CLASSNAME) ctrlSetText _classname;
+            };
+        } else {
+            // Add directly
+            if ([_preset, _category, _classname] call LBH_fnc_addClassname) then {
+                [format ["Added: %1", _classname], 0, 2] call LBH_fnc_showNotification;
+            };
+
+            // Refresh list
+            call LBH_fnc_refreshList;
         };
-    } else {
-        // Add directly
-        [_preset, _category, _classname] call LBH_fnc_addClassname;
+    },
+    [_preset, _category, _formatType]
+];
 
-        // Refresh list
-        call LBH_fnc_refreshList;
-    };
-}, [_preset, _category, _formatType]] call BIS_fnc_3DENTextInput;
+// Open text input dialog
+createDialog "LBH_TextInput";

@@ -191,6 +191,8 @@ class LBH_RscCombo {
     colorSelectBackground[] = COLOR_BLUE;
     colorDisabled[] = {0.5, 0.5, 0.5, 1};
     colorScrollbar[] = {1, 1, 1, 1};
+    arrowEmpty = "\A3\ui_f\data\gui\cfg\scrollbar\arrowEmpty_ca.paa";
+    arrowFull = "\A3\ui_f\data\gui\cfg\scrollbar\arrowFull_ca.paa";
     soundSelect[] = {"", 0.1, 1};
     soundExpand[] = {"", 0.1, 1};
     soundCollapse[] = {"", 0.1, 1};
@@ -309,3 +311,69 @@ class LBH_RscBackground {
     sizeEx = 0.03;
     text = "";
 };
+
+// Dialog IDD constants (must match script_component.hpp)
+#define IDD_MAIN_PANEL      58001
+#define IDD_COST_DIALOG     58002
+#define IDD_CATEGORY_SELECT 58003
+#define IDD_EXPORT_WIZARD   58004
+
+// Main Panel IDCs (must match script_component.hpp)
+#define IDC_PRESET_COMBO    1001
+#define IDC_CATEGORY_COMBO  1002
+#define IDC_CLASSNAME_LIST  1003
+#define IDC_SEARCH_EDIT     1004
+#define IDC_BTN_ADD         1005
+#define IDC_BTN_REMOVE      1006
+#define IDC_BTN_EXPORT      1007
+#define IDC_BTN_CLEAR       1008
+#define IDC_BTN_CLOSE       1009
+#define IDC_STATUS_TEXT     1010
+
+// Cost Dialog IDCs (must match script_component.hpp)
+#define IDC_COST_SUPPLIES   2001
+#define IDC_COST_AMMO       2002
+#define IDC_COST_FUEL       2003
+#define IDC_COST_OK         2004
+#define IDC_COST_CANCEL     2005
+#define IDC_COST_CLASSNAME  2006
+
+// Category Select Dialog IDCs (must match script_component.hpp)
+#define IDC_CATSEL_LIST     3001
+#define IDC_CATSEL_OK       3002
+#define IDC_CATSEL_CANCEL   3003
+
+// Export Wizard Dialog IDCs
+#define IDC_WIZARD_PATH         5801
+#define IDC_WIZARD_BROWSE       5802
+#define IDC_WIZARD_RECENT       5803
+#define IDC_WIZARD_STATUS       5804
+#define IDC_WIZARD_CLOSE        5805
+
+// Export Wizard - Copy buttons per preset
+#define IDC_WIZARD_COPY_BLUFOR      5810
+#define IDC_WIZARD_COPY_OPFOR       5811
+#define IDC_WIZARD_COPY_RESISTANCE  5812
+#define IDC_WIZARD_COPY_CIVILIANS   5813
+#define IDC_WIZARD_COPY_ARSENAL     5814
+
+// Export Wizard - Open folder buttons per preset
+#define IDC_WIZARD_OPEN_BLUFOR      5820
+#define IDC_WIZARD_OPEN_OPFOR       5821
+#define IDC_WIZARD_OPEN_RESISTANCE  5822
+#define IDC_WIZARD_OPEN_CIVILIANS   5823
+#define IDC_WIZARD_OPEN_ARSENAL     5824
+
+// Export Wizard - Item count labels per preset
+#define IDC_WIZARD_COUNT_BLUFOR     5830
+#define IDC_WIZARD_COUNT_OPFOR      5831
+#define IDC_WIZARD_COUNT_RESISTANCE 5832
+#define IDC_WIZARD_COUNT_CIVILIANS  5833
+#define IDC_WIZARD_COUNT_ARSENAL    5834
+
+// Text Input Dialog
+#define IDD_TEXT_INPUT          58005
+#define IDC_TEXT_INPUT_LABEL    6001
+#define IDC_TEXT_INPUT_EDIT     6002
+#define IDC_TEXT_INPUT_OK       6003
+#define IDC_TEXT_INPUT_CANCEL   6004

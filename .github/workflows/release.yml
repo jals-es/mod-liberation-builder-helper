@@ -234,6 +234,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -297,6 +300,19 @@ jobs:
 
           $contentPath = "${{ github.workspace }}\build\$env:MOD_NAME".Replace("/", "\")
           $vdfPath = "${{ github.workspace }}\workshop.vdf".Replace("/", "\")
+          $descPath = "${{ github.workspace }}\workshop_description.txt"
+
+          # Read workshop description if exists
+          $description = ""
+          if (Test-Path $descPath) {
+            $description = Get-Content $descPath -Raw -Encoding UTF8
+            # Replace title with version
+            $description = $description -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
+            echo "Workshop description loaded from file with version $env:VERSION"
+          } else {
+            $description = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod para crear presets de KP Liberation desde el editor 3DEN"
+            echo "Using default description (file not found)"
+          }
 
           # Create VDF file (same format as Arma 3 Publisher)
           $vdf = "`"workshopitem`"`n"
@@ -305,12 +321,13 @@ jobs:
           $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
           $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
           $vdf += "    `"changenote`"       `"v$env:VERSION - Automatic release`"`n"
+          $vdf += "    `"description`"      `"$description`"`n"
           $vdf += "}"
 
-          $vdf | Out-File -FilePath $vdfPath -Encoding ASCII -NoNewline
+          $vdf | Out-File -FilePath $vdfPath -Encoding UTF8 -NoNewline
 
-          echo "=== VDF Content ==="
-          Get-Content $vdfPath
+          echo "=== VDF Content (first 20 lines) ==="
+          Get-Content $vdfPath | Select-Object -First 20
 
           echo ""
           echo "=== Content Folder ==="

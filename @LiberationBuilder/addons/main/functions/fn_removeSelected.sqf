@@ -25,7 +25,7 @@ private _categoryIndex = lbCurSel _categoryCombo;
 private _listIndex = lnbCurSelRow _list;
 
 if (_presetIndex < 0 || _categoryIndex < 0 || _listIndex < 0) exitWith {
-    ["No item selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No item selected!", 1, 2] call LBH_fnc_showNotification;
 };
 
 private _preset = _presetCombo lbData _presetIndex;

@@ -242,5 +242,83 @@
             <English>Export Arsenal Loadout</English>
             <Spanish>Exportar Equipamiento del Arsenal</Spanish>
         </Key>
+
+        <!-- Export Wizard -->
+        <Key ID="STR_LBH_Wizard_Title">
+            <English>Export to KP Liberation Mission</English>
+            <Spanish>Exportar a Mision KP Liberation</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_MissionPath">
+            <English>Mission Path:</English>
+            <Spanish>Ruta de Mision:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Browse">
+            <English>Browse</English>
+            <Spanish>Examinar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Recent">
+            <English>Recent:</English>
+            <Spanish>Recientes:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_SelectRecent">
+            <English>-- Select Recent Path --</English>
+            <Spanish>-- Seleccionar Ruta Reciente --</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_ValidatePath">
+            <English>Validate Path</English>
+            <Spanish>Validar Ruta</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Preset">
+            <English>Preset</English>
+            <Spanish>Preset</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Items">
+            <English>Items</English>
+            <Spanish>Items</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_TargetFile">
+            <English>Target File</English>
+            <Spanish>Archivo Destino</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Actions">
+            <English>Actions</English>
+            <Spanish>Acciones</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Copy">
+            <English>Copy</English>
+            <Spanish>Copiar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Open">
+            <English>Open</English>
+            <Spanish>Abrir</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_Instructions">
+            <English>Click 'Copy' to copy preset to clipboard, then paste into the target file. Click 'Open' to open the folder.</English>
+            <Spanish>Haz clic en 'Copiar' para copiar el preset al portapapeles, luego pega en el archivo destino. Haz clic en 'Abrir' para abrir la carpeta.</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_StatusEnterPath">
+            <English>Enter a KP Liberation mission path and click 'Validate Path'</English>
+            <Spanish>Ingresa una ruta de mision KP Liberation y haz clic en 'Validar Ruta'</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_StatusValid">
+            <English>Path looks like a KP Liberation mission - Ready to export!</English>
+            <Spanish>La ruta parece ser una mision KP Liberation - Listo para exportar!</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_StatusWarning">
+            <English>Warning: Path may not be a KP Liberation mission. Proceed with caution.</English>
+            <Spanish>Advertencia: La ruta podria no ser una mision KP Liberation. Procede con cuidado.</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_CopySuccess">
+            <English>%1 copied! (%2 lines) - Paste into %3</English>
+            <Spanish>%1 copiado! (%2 lineas) - Pega en %3</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Wizard_PathCopied">
+            <English>Path copied: %1</English>
+            <Spanish>Ruta copiada: %1</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Menu_SaveToMission">
+            <English>Save to Mission...</English>
+            <Spanish>Guardar en Mision...</Spanish>
+        </Key>
     </Package>
 </Project>

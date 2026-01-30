@@ -1,5 +1,5 @@
 // Liberation Builder Helper - Dialog Definitions
-#include "defines.hpp"
+// Note: defines.hpp is included via config.cpp before this file
 
 // Main Management Panel
 class LBH_MainPanel {
@@ -254,7 +254,7 @@ class LBH_CostDialog {
             w = 0.1 * safezoneW;
             h = 0.035 * safezoneH;
             text = "Cancel";
-            action = "closeDialog 0;";
+            action = "LBH_pendingCost = []; LBH_pendingCostQueue = nil; closeDialog 0;";
         };
     };
 };
@@ -310,6 +310,502 @@ class LBH_CategorySelect {
             h = 0.035 * safezoneH;
             text = "Cancel";
             action = "closeDialog 0;";
+        };
+    };
+};
+
+// Export Wizard Dialog
+class LBH_ExportWizard {
+    idd = IDD_EXPORT_WIZARD;
+    movingEnable = 1;
+    enableSimulation = 1;
+    onLoad = "uiNamespace setVariable ['LBH_ExportWizard', _this select 0]; call LBH_fnc_openExportWizard;";
+    onUnload = "uiNamespace setVariable ['LBH_ExportWizard', displayNull];";
+
+    class ControlsBackground {
+        class Background : LBH_RscBackground {
+            x = 0.20 * safezoneW + safezoneX;
+            y = 0.12 * safezoneH + safezoneY;
+            w = 0.60 * safezoneW;
+            h = 0.76 * safezoneH;
+        };
+        class TitleBar : LBH_RscTitle {
+            x = 0.20 * safezoneW + safezoneX;
+            y = 0.12 * safezoneH + safezoneY;
+            w = 0.60 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "Export to KP Liberation Mission";
+        };
+    };
+
+    class Controls {
+        // Mission Path Input
+        class PathLabel : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.18 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Mission Path:";
+        };
+        class PathEdit : LBH_RscEdit {
+            idc = IDC_WIZARD_PATH;
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.21 * safezoneH + safezoneY;
+            w = 0.48 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "";
+        };
+        class BtnBrowse : LBH_RscButton {
+            idc = IDC_WIZARD_BROWSE;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.21 * safezoneH + safezoneY;
+            w = 0.07 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Browse";
+            action = "call LBH_fnc_browseMissionPath;";
+        };
+
+        // Recent Paths Dropdown
+        class RecentLabel : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.25 * safezoneH + safezoneY;
+            w = 0.08 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Recent:";
+        };
+        class RecentCombo : LBH_RscCombo {
+            idc = IDC_WIZARD_RECENT;
+            x = 0.30 * safezoneW + safezoneX;
+            y = 0.25 * safezoneH + safezoneY;
+            w = 0.40 * safezoneW;
+            h = 0.025 * safezoneH;
+            onLBSelChanged = "call LBH_fnc_onRecentPathSelected;";
+        };
+
+        // Validation Status
+        class StatusText : LBH_RscText {
+            idc = IDC_WIZARD_STATUS;
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.29 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Enter mission path to validate...";
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+
+        // Separator line
+        class Separator1 : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.32 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.002 * safezoneH;
+            colorBackground[] = {0.4, 0.4, 0.4, 1};
+        };
+
+        // Table Header
+        class HeaderPreset : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.34 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Preset";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderItems : LBH_RscText {
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.34 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Items";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderTarget : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.34 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Target File";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderActions : LBH_RscText {
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.34 * safezoneH + safezoneY;
+            w = 0.14 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Actions";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+
+        // ========== BLUFOR Row ==========
+        class RowBluforBg : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.37 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelBlufor : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.38 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "BLUFOR";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.4, 0.6, 1, 1};
+        };
+        class CountBlufor : LBH_RscText {
+            idc = IDC_WIZARD_COUNT_BLUFOR;
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.38 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetBlufor : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.38 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "presets/blufor/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnCopyBlufor : LBH_RscButton {
+            idc = IDC_WIZARD_COPY_BLUFOR;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.385 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Copy";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['blufor'] call LBH_fnc_exportPresetToClipboard;";
+        };
+        class BtnOpenBlufor : LBH_RscButton {
+            idc = IDC_WIZARD_OPEN_BLUFOR;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.385 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Open";
+            action = "['blufor'] call LBH_fnc_openMissionFolder;";
+        };
+
+        // ========== OPFOR Row ==========
+        class RowOpforBg : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.44 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            colorBackground[] = {0.15, 0.15, 0.18, 1};
+        };
+        class LabelOpfor : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.45 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "OPFOR";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {1, 0.4, 0.4, 1};
+        };
+        class CountOpfor : LBH_RscText {
+            idc = IDC_WIZARD_COUNT_OPFOR;
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.45 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetOpfor : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.45 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "presets/opfor/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnCopyOpfor : LBH_RscButton {
+            idc = IDC_WIZARD_COPY_OPFOR;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.455 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Copy";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['opfor'] call LBH_fnc_exportPresetToClipboard;";
+        };
+        class BtnOpenOpfor : LBH_RscButton {
+            idc = IDC_WIZARD_OPEN_OPFOR;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.455 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Open";
+            action = "['opfor'] call LBH_fnc_openMissionFolder;";
+        };
+
+        // ========== Resistance Row ==========
+        class RowResistanceBg : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.51 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelResistance : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.52 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "Resistance";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.4, 0.9, 0.4, 1};
+        };
+        class CountResistance : LBH_RscText {
+            idc = IDC_WIZARD_COUNT_RESISTANCE;
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.52 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetResistance : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.52 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "presets/resistance/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnCopyResistance : LBH_RscButton {
+            idc = IDC_WIZARD_COPY_RESISTANCE;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.525 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Copy";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['resistance'] call LBH_fnc_exportPresetToClipboard;";
+        };
+        class BtnOpenResistance : LBH_RscButton {
+            idc = IDC_WIZARD_OPEN_RESISTANCE;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.525 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Open";
+            action = "['resistance'] call LBH_fnc_openMissionFolder;";
+        };
+
+        // ========== Civilians Row ==========
+        class RowCiviliansBg : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.58 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            colorBackground[] = {0.15, 0.15, 0.18, 1};
+        };
+        class LabelCivilians : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.59 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "Civilians";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.8, 0.4, 0.8, 1};
+        };
+        class CountCivilians : LBH_RscText {
+            idc = IDC_WIZARD_COUNT_CIVILIANS;
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.59 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetCivilians : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.59 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "presets/civilians/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnCopyCivilians : LBH_RscButton {
+            idc = IDC_WIZARD_COPY_CIVILIANS;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.595 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Copy";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['civilians'] call LBH_fnc_exportPresetToClipboard;";
+        };
+        class BtnOpenCivilians : LBH_RscButton {
+            idc = IDC_WIZARD_OPEN_CIVILIANS;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.595 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Open";
+            action = "['civilians'] call LBH_fnc_openMissionFolder;";
+        };
+
+        // ========== Arsenal Row ==========
+        class RowArsenalBg : LBH_RscBackground {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.65 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelArsenal : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.66 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "Arsenal";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {1, 0.8, 0.3, 1};
+        };
+        class CountArsenal : LBH_RscText {
+            idc = IDC_WIZARD_COUNT_ARSENAL;
+            x = 0.34 * safezoneW + safezoneX;
+            y = 0.66 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetArsenal : LBH_RscText {
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.66 * safezoneH + safezoneY;
+            w = 0.24 * safezoneW;
+            h = 0.04 * safezoneH;
+            text = "arsenal_presets/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnCopyArsenal : LBH_RscButton {
+            idc = IDC_WIZARD_COPY_ARSENAL;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.665 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Copy";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['arsenal'] call LBH_fnc_exportPresetToClipboard;";
+        };
+        class BtnOpenArsenal : LBH_RscButton {
+            idc = IDC_WIZARD_OPEN_ARSENAL;
+            x = 0.71 * safezoneW + safezoneX;
+            y = 0.665 * safezoneH + safezoneY;
+            w = 0.06 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Open";
+            action = "['arsenal'] call LBH_fnc_openMissionFolder;";
+        };
+
+        // ========== Instructions ==========
+        class InstructionsText : LBH_RscText {
+            x = 0.22 * safezoneW + safezoneX;
+            y = 0.73 * safezoneH + safezoneY;
+            w = 0.56 * safezoneW;
+            h = 0.06 * safezoneH;
+            text = "Click 'Copy' to copy preset to clipboard, then paste into the target file. Click 'Open' to open the folder.";
+            sizeEx = 0.022;
+            colorText[] = {0.6, 0.6, 0.6, 1};
+        };
+
+        // ========== Bottom Buttons ==========
+        class BtnValidate : LBH_RscButton {
+            x = 0.50 * safezoneW + safezoneX;
+            y = 0.80 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.035 * safezoneH;
+            text = "Validate Path";
+            action = "call LBH_fnc_validateMissionPath;";
+        };
+        class BtnClose : LBH_RscButton {
+            idc = IDC_WIZARD_CLOSE;
+            x = 0.64 * safezoneW + safezoneX;
+            y = 0.80 * safezoneH + safezoneY;
+            w = 0.12 * safezoneW;
+            h = 0.035 * safezoneH;
+            text = "Close";
+            action = "closeDialog 0;";
+        };
+    };
+};
+
+// Text Input Dialog
+class LBH_TextInput {
+    idd = IDD_TEXT_INPUT;
+    movingEnable = 1;
+    enableSimulation = 1;
+    onLoad = "uiNamespace setVariable ['LBH_TextInput', _this select 0];";
+    onUnload = "uiNamespace setVariable ['LBH_TextInput', displayNull];";
+
+    class ControlsBackground {
+        class Background : LBH_RscBackground {
+            x = 0.35 * safezoneW + safezoneX;
+            y = 0.40 * safezoneH + safezoneY;
+            w = 0.30 * safezoneW;
+            h = 0.15 * safezoneH;
+        };
+        class TitleBar : LBH_RscTitle {
+            x = 0.35 * safezoneW + safezoneX;
+            y = 0.40 * safezoneH + safezoneY;
+            w = 0.30 * safezoneW;
+            h = 0.035 * safezoneH;
+            text = "Enter Classname";
+        };
+    };
+
+    class Controls {
+        class InputLabel : LBH_RscText {
+            idc = IDC_TEXT_INPUT_LABEL;
+            x = 0.36 * safezoneW + safezoneX;
+            y = 0.44 * safezoneH + safezoneY;
+            w = 0.28 * safezoneW;
+            h = 0.025 * safezoneH;
+            text = "Classname:";
+        };
+        class InputEdit : LBH_RscEdit {
+            idc = IDC_TEXT_INPUT_EDIT;
+            x = 0.36 * safezoneW + safezoneX;
+            y = 0.47 * safezoneH + safezoneY;
+            w = 0.28 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "";
+        };
+        class BtnOK : LBH_RscButton {
+            idc = IDC_TEXT_INPUT_OK;
+            x = 0.40 * safezoneW + safezoneX;
+            y = 0.51 * safezoneH + safezoneY;
+            w = 0.10 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "OK";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "call LBH_fnc_confirmTextInput;";
+        };
+        class BtnCancel : LBH_RscButton {
+            idc = IDC_TEXT_INPUT_CANCEL;
+            x = 0.52 * safezoneW + safezoneX;
+            y = 0.51 * safezoneH + safezoneY;
+            w = 0.10 * safezoneW;
+            h = 0.03 * safezoneH;
+            text = "Cancel";
+            action = "LBH_textInputCallback = nil; closeDialog 0;";
         };
     };
 };

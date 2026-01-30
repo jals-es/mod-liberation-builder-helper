@@ -18,10 +18,10 @@ private _savedData = profileNamespace getVariable ["LBH_savedData", createHashMa
 if (count _savedData > 0) then {
     LBH_data = _savedData;
     diag_log "[LBH] Data loaded from profile";
-    ["Data loaded successfully", "PLAIN DOWN", 2] call LBH_fnc_showNotification;
+    ["Data loaded successfully", 0, 2] call LBH_fnc_showNotification;
     true
 } else {
     diag_log "[LBH] No saved data found";
-    ["No saved data found", "PLAIN DOWN", 2] call LBH_fnc_showNotification;
+    ["No saved data found", 1, 2] call LBH_fnc_showNotification;
     false
 };

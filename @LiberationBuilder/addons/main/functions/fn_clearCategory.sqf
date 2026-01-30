@@ -23,7 +23,7 @@ private _presetIndex = lbCurSel _presetCombo;
 private _categoryIndex = lbCurSel _categoryCombo;
 
 if (_presetIndex < 0 || _categoryIndex < 0) exitWith {
-    ["No category selected!", "PLAIN", 2] call LBH_fnc_showNotification;
+    ["No category selected!", 1, 2] call LBH_fnc_showNotification;
 };
 
 private _preset = _presetCombo lbData _presetIndex;
@@ -58,4 +58,4 @@ call LBH_fnc_saveData;
 // Refresh list
 call LBH_fnc_refreshList;
 
-[format ["Cleared: %1", _category], "PLAIN DOWN", 2] call LBH_fnc_showNotification;
+[format ["Cleared: %1", _category], 0, 2] call LBH_fnc_showNotification;

@@ -61,6 +61,9 @@ class CfgFunctions {
             class openCostDialog {};
             class confirmCost {};
 
+            // Text input dialog
+            class confirmTextInput {};
+
             // Category select dialog
             class openCategorySelect {};
             class confirmCategory {};
@@ -77,6 +80,21 @@ class CfgFunctions {
             class arsenalInit {};
             class arsenalExport {};
             class parseLoadout {};
+
+            // Export Wizard functions
+            class openExportWizard {};
+            class exportPresetToClipboard {};
+            class openMissionFolder {};
+            class validateMissionPath {};
+            class loadRecentPaths {};
+            class saveRecentPath {};
+            class onRecentPathSelected {};
+            class saveCurrentPathToRecent {};
+            class browseMissionPath {};
+
+            // Data management
+            class clearAllData {};
+            class doClearAllData {};
         };
     };
 };
@@ -321,12 +339,15 @@ class display3DEN {
                     items[] = {
                         "LBH_OpenPanel",
                         "LBH_ExportAll",
+                        "LBH_SaveToMission",
                         "LBH_Separator1",
                         "LBH_AddBlufor",
                         "LBH_AddOpfor",
                         "LBH_AddResistance",
                         "LBH_AddCivilians",
-                        "LBH_AddArsenal"
+                        "LBH_AddArsenal",
+                        "LBH_Separator2",
+                        "LBH_ClearAllData"
                     };
                 };
 
@@ -340,10 +361,25 @@ class display3DEN {
                     picture = "\A3\ui_f\data\gui\cfg\hints\icon_text\bexport_ca.paa";
                     action = "call LBH_fnc_exportPreset;";
                 };
+                class LBH_SaveToMission {
+                    text = "Save to Mission...";
+                    picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\cargotab_ca.paa";
+                    action = "createDialog 'LBH_ExportWizard';";
+                };
                 class LBH_Separator1 {
                     text = "";
                     action = "";
                     data = "separator";
+                };
+                class LBH_Separator2 {
+                    text = "";
+                    action = "";
+                    data = "separator";
+                };
+                class LBH_ClearAllData {
+                    text = "Clear All Data...";
+                    picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\icon_ca.paa";
+                    action = "call LBH_fnc_clearAllData;";
                 };
 
                 // BLUFOR submenu
@@ -495,37 +531,47 @@ class display3DEN {
                     text = "Backpacks";
                     action = "['arsenal', 'GRLIB_arsenal_backpacks'] call LBH_fnc_addSelectedObjects;";
                 };
-
-                // Context menu items
-                class LBH_Context_Menu {
-                    text = "Liberation Builder";
-                    picture = "";
-                    items[] = {
-                        "LBH_Context_AddAuto",
-                        "LBH_Context_SelectCategory"
-                    };
-                };
-                class LBH_Context_AddAuto {
-                    text = "Add (Auto-detect)";
-                    action = "[true] call LBH_fnc_addSelectedObjects;";
-                };
-                class LBH_Context_SelectCategory {
-                    text = "Add to Category...";
-                    action = "call LBH_fnc_openCategorySelect;";
-                };
             };
         };
     };
+
+    // Context Menu (right-click on objects in 3DEN)
     class ContextMenu: ctrlMenuStrip {
         class Items {
-            class Object {
-                items[] += {"LBH_Context_Menu"};
+            // Add our items to the context menu
+            items[] += {"LBH_ContextMenu"};
+
+            // Liberation Builder submenu in context menu
+            class LBH_ContextMenu {
+                text = "Liberation Builder";
+                picture = "";
+                value = 0;
+                conditionShow = "hoverObject";
+                items[] = {
+                    "LBH_Context_AddAuto",
+                    "LBH_Context_AddToCategory"
+                };
+            };
+
+            // Add (Auto-detect) - detects object type automatically
+            class LBH_Context_AddAuto {
+                text = "Add (Auto-detect)";
+                action = "[true] call LBH_fnc_addSelectedObjects;";
+                conditionShow = "hoverObject";
+            };
+
+            // Add to Category... - opens category selection dialog
+            class LBH_Context_AddToCategory {
+                text = "Add to Category...";
+                action = "call LBH_fnc_openCategorySelect;";
+                conditionShow = "hoverObject";
             };
         };
     };
 };
 
-// Dialogs
+// UI Definitions and Dialogs
+#include "ui\defines.hpp"
 #include "ui\dialogs.hpp"
 
 // CBA Extended Event Handlers
