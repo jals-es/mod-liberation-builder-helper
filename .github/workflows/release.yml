@@ -395,6 +395,12 @@ jobs:
           function Update-WorkshopDescription {
             param($Language, $Description)
 
+            # Try Partner API first, then public API
+            $endpoints = @(
+              "https://partner.steam-api.com/IPublishedFileService/UpdateDetails/v1/",
+              "https://api.steampowered.com/IPublishedFileService/UpdateDetails/v1/"
+            )
+
             $body = @{
               key = $env:STEAM_API_KEY
               publishedfileid = $env:STEAM_WORKSHOP_ID
@@ -402,17 +408,21 @@ jobs:
               description = $Description
             }
 
-            try {
-              $response = Invoke-RestMethod -Uri "https://api.steampowered.com/IPublishedFileService/UpdateDetails/v1/" `
-                -Method Post -Body $body -ContentType "application/x-www-form-urlencoded"
+            foreach ($endpoint in $endpoints) {
+              try {
+                echo "Trying endpoint: $endpoint"
+                $response = Invoke-RestMethod -Uri $endpoint `
+                  -Method Post -Body $body -ContentType "application/x-www-form-urlencoded"
 
-              if ($response.response) {
-                echo "Successfully updated description for language $Language"
-                return $true
+                if ($response.response) {
+                  echo "Successfully updated description for language $Language"
+                  return $true
+                }
+              } catch {
+                echo "Endpoint failed: $($_.Exception.Message)"
               }
-            } catch {
-              Write-Warning "Failed to update language $Language : $_"
             }
+            Write-Warning "Could not update language $Language with any endpoint"
             return $false
           }
 
@@ -424,12 +434,12 @@ jobs:
             Update-WorkshopDescription -Language 0 -Description $descEn
           }
 
-          # Read and update Spanish description (language = 7)
+          # Read and update Spanish description (language = 5)
           if (Test-Path $descPathEs) {
             $descEs = Get-Content $descPathEs -Raw -Encoding UTF8
             $descEs = $descEs -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
             echo "Updating Spanish description..."
-            Update-WorkshopDescription -Language 7 -Description $descEs
+            Update-WorkshopDescription -Language 5 -Description $descEs
           }
 
           echo "Localized descriptions update completed!"
