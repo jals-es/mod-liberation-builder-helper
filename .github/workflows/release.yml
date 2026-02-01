@@ -222,10 +222,14 @@ jobs:
   # Only uploads when MAJOR, MINOR, or PATCH changes
   # Skipped for BUILD-only changes
   #
-  # To enable, add these secrets to your repo:
+  # To enable, add these to your repo:
+  #   Variables (Settings > Secrets and variables > Actions > Variables):
   #   - STEAM_USERNAME: Your Steam username
-  #   - STEAM_PASSWORD: Your Steam password
   #   - STEAM_WORKSHOP_ID: Workshop item ID
+  #   - STEAM_APP_ID: Steam App ID (107410 for Arma 3)
+  #
+  #   Secrets (Settings > Secrets and variables > Actions > Secrets):
+  #   - STEAM_PASSWORD: Your Steam password
   # ============================================
 
   steam-upload:
@@ -259,7 +263,7 @@ jobs:
       - name: Generate meta.cpp
         shell: pwsh
         env:
-          STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
+          STEAM_WORKSHOP_ID: ${{ vars.STEAM_WORKSHOP_ID }}
         run: |
           # Generate timestamp like .NET DateTime.ToBinary()
           # 621355968000000000 = ticks from 0001-01-01 to 1970-01-01
@@ -286,15 +290,16 @@ jobs:
       - name: Generate VDF and Upload to Steam Workshop
         shell: pwsh
         env:
-          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_USERNAME: ${{ vars.STEAM_USERNAME }}
           STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
-          STEAM_WORKSHOP_ID: ${{ secrets.STEAM_WORKSHOP_ID }}
+          STEAM_WORKSHOP_ID: ${{ vars.STEAM_WORKSHOP_ID }}
+          STEAM_APP_ID: ${{ vars.STEAM_APP_ID }}
           VERSION: ${{ needs.build.outputs.version }}
         run: |
-          # Check if Steam secrets are configured
-          if (-not $env:STEAM_USERNAME -or -not $env:STEAM_PASSWORD -or -not $env:STEAM_WORKSHOP_ID) {
-            Write-Warning "Steam Workshop secrets not configured. Skipping upload."
-            Write-Host "To enable, add STEAM_USERNAME, STEAM_PASSWORD, and STEAM_WORKSHOP_ID secrets."
+          # Check if Steam variables/secrets are configured
+          if (-not $env:STEAM_USERNAME -or -not $env:STEAM_PASSWORD -or -not $env:STEAM_WORKSHOP_ID -or -not $env:STEAM_APP_ID) {
+            Write-Warning "Steam Workshop not configured. Skipping upload."
+            Write-Host "To enable, add variables (STEAM_USERNAME, STEAM_WORKSHOP_ID, STEAM_APP_ID) and secret (STEAM_PASSWORD)."
             exit 0
           }
 
@@ -317,7 +322,7 @@ jobs:
           # Create VDF file (same format as Arma 3 Publisher)
           $vdf = "`"workshopitem`"`n"
           $vdf += "{`n"
-          $vdf += "    `"appid`"            `"107410`"`n"
+          $vdf += "    `"appid`"            `"$env:STEAM_APP_ID`"`n"
           $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
           $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
           $vdf += "    `"changenote`"       `"v$env:VERSION - Automatic release`"`n"
