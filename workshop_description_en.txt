@@ -1,0 +1,83 @@
+[h1]Liberation Builder Helper[/h1]
+
+Arma 3 mod that facilitates the creation of presets for KP Liberation missions, allowing you to add classnames directly from the 3DEN editor.
+
+[h2]Requirements[/h2]
+[list]
+[*] Arma 3 (v2.00+)
+[*] CBA_A3 (required)
+[/list]
+
+[h2]How to Use[/h2]
+
+[h3]1. Main Menu[/h3]
+Access from [b]Tools > Liberation Builder[/b] in the 3DEN editor.
+[list]
+[*] [b]Open Management Panel[/b] - Main management panel
+[*] [b]Export All Presets[/b] - Export everything to clipboard
+[*] [b]Save to Mission...[/b] - Export Wizard for KP Liberation missions
+[*] [b]Add to BLUFOR/OPFOR/etc.[/b] - Submenus by preset
+[*] [b]Clear All Data...[/b] - Delete all saved data
+[/list]
+
+[h3]2. Adding Objects[/h3]
+[olist]
+[*] Select objects in the 3DEN editor
+[*] Go to [b]Tools > Liberation Builder > Add to [PRESET] > [CATEGORY][/b]
+[*] If costs are required, enter Supplies/Ammo/Fuel
+[*] Click OK to add
+[/olist]
+
+[h3]3. Management Panel[/h3]
+[list]
+[*] [b]Preset[/b] - BLUFOR, OPFOR, Resistance, Civilians, Arsenal
+[*] [b]Category[/b] - Category within the preset
+[*] [b]Search[/b] - Filter classnames by text
+[*] [b]Add Manual[/b] - Enter classname manually
+[*] [b]Remove[/b] - Remove selected item
+[*] [b]Export[/b] - Export current preset to clipboard
+[*] [b]Clear All[/b] - Clear current category
+[/list]
+
+[h3]4. Export Wizard (Save to Mission)[/h3]
+[olist]
+[*] Go to [b]Tools > Liberation Builder > Save to Mission...[/b]
+[*] Enter the path to your KP Liberation mission
+[*] The wizard validates that it's a valid mission
+[*] Click [b]Copy[/b] on each preset to copy to clipboard
+[*] Click [b]Open[/b] to open the destination folder
+[*] Paste into the corresponding custom.sqf file
+[/olist]
+
+[h2]Destination Files in KP Liberation[/h2]
+[list]
+[*] BLUFOR → presets/blufor/custom.sqf
+[*] OPFOR → presets/opfor/custom.sqf
+[*] Resistance → presets/resistance/custom.sqf
+[*] Civilians → presets/civilians/custom.sqf
+[*] Arsenal → arsenal_presets/custom.sqf
+[/list]
+
+[h2]Supported Categories[/h2]
+
+[b]BLUFOR (with costs):[/b] infantry_units, light_vehicles, heavy_vehicles, air_vehicles, static_vehicles, buildings, support_vehicles
+
+[b]BLUFOR (squads):[/b] blufor_squad_inf_light, blufor_squad_inf, blufor_squad_at, blufor_squad_aa, blufor_squad_recon, blufor_squad_para
+
+[b]BLUFOR (individual):[/b] crewman_classname, pilot_classname, FOB_typename, Arsenal_typename, etc.
+
+[b]OPFOR:[/b] militia_squad, opfor_vehicles, opfor_choppers, opfor_air, and all individual units
+
+[b]Resistance:[/b] guerrilla_units, guerrilla_vehicles, uniforms, vests, helmets (3 tiers each)
+
+[b]Civilians:[/b] civilians, civilian_vehicles
+
+[b]Arsenal:[/b] GRLIB_arsenal_weapons, GRLIB_arsenal_magazines, GRLIB_arsenal_items, GRLIB_arsenal_backpacks
+
+[h2]Data Persistence[/h2]
+Data is automatically saved in profileNamespace and persists between Arma 3 sessions.
+
+[h2]Links[/h2]
+[url=https://github.com/jals-es/mod-liberation-builder-helper]GitHub - Source Code and Bug Reports[/url]
+
+[i]Developed for use with KP Liberation[/i]

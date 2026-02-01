@@ -305,28 +305,40 @@ jobs:
 
           $contentPath = "${{ github.workspace }}\build\$env:MOD_NAME".Replace("/", "\")
           $vdfPath = "${{ github.workspace }}\workshop.vdf".Replace("/", "\")
-          $descPath = "${{ github.workspace }}\workshop_description.txt"
+          $descPathEn = "${{ github.workspace }}\workshop_description_en.txt"
+          $descPathEs = "${{ github.workspace }}\workshop_description_es.txt"
 
-          # Read workshop description if exists
-          $description = ""
-          if (Test-Path $descPath) {
-            $description = Get-Content $descPath -Raw -Encoding UTF8
-            # Replace title with version
-            $description = $description -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
-            echo "Workshop description loaded from file with version $env:VERSION"
+          # Read English description
+          $descriptionEn = ""
+          if (Test-Path $descPathEn) {
+            $descriptionEn = Get-Content $descPathEn -Raw -Encoding UTF8
+            $descriptionEn = $descriptionEn -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
+            echo "English description loaded"
           } else {
-            $description = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod para crear presets de KP Liberation desde el editor 3DEN"
-            echo "Using default description (file not found)"
+            $descriptionEn = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod for creating KP Liberation presets from the 3DEN editor"
+            echo "Using default English description"
           }
 
-          # Create VDF file (same format as Arma 3 Publisher)
+          # Read Spanish description
+          $descriptionEs = ""
+          if (Test-Path $descPathEs) {
+            $descriptionEs = Get-Content $descPathEs -Raw -Encoding UTF8
+            $descriptionEs = $descriptionEs -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
+            echo "Spanish description loaded"
+          } else {
+            $descriptionEs = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod para crear presets de KP Liberation desde el editor 3DEN"
+            echo "Using default Spanish description"
+          }
+
+          # Create VDF file with localized descriptions
           $vdf = "`"workshopitem`"`n"
           $vdf += "{`n"
           $vdf += "    `"appid`"            `"$env:STEAM_APP_ID`"`n"
           $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
           $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
           $vdf += "    `"changenote`"       `"v$env:VERSION - Automatic release`"`n"
-          $vdf += "    `"description`"      `"$description`"`n"
+          $vdf += "    `"description`"      `"$descriptionEn`"`n"
+          $vdf += "    `"description[spanish]`" `"$descriptionEs`"`n"
           $vdf += "}"
 
           $vdf | Out-File -FilePath $vdfPath -Encoding UTF8 -NoNewline
