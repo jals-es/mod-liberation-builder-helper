@@ -230,8 +230,6 @@ jobs:
   #
   #   Secrets (Settings > Secrets and variables > Actions > Secrets):
   #   - STEAM_PASSWORD: Your Steam password
-  #   - STEAM_API_KEY: Steam Web API key (for localized descriptions)
-  #                    Get it from: https://steamcommunity.com/dev/apikey
   # ============================================
 
   steam-upload:
@@ -307,39 +305,27 @@ jobs:
 
           $contentPath = "${{ github.workspace }}\build\$env:MOD_NAME".Replace("/", "\")
           $vdfPath = "${{ github.workspace }}\workshop.vdf".Replace("/", "\")
-          $descPathEn = "${{ github.workspace }}\workshop_description_en.txt"
-          $descPathEs = "${{ github.workspace }}\workshop_description_es.txt"
+          $descPath = "${{ github.workspace }}\workshop_description.txt"
 
-          # Read English description
-          $descriptionEn = ""
-          if (Test-Path $descPathEn) {
-            $descriptionEn = Get-Content $descPathEn -Raw -Encoding UTF8
-            $descriptionEn = $descriptionEn -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
-            echo "English description loaded"
+          # Read description
+          $description = ""
+          if (Test-Path $descPath) {
+            $description = Get-Content $descPath -Raw -Encoding UTF8
+            $description = $description -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
+            echo "Workshop description loaded"
           } else {
-            $descriptionEn = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod for creating KP Liberation presets from the 3DEN editor"
-            echo "Using default English description"
+            $description = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod for creating KP Liberation presets from the 3DEN editor"
+            echo "Using default description"
           }
 
-          # Read Spanish description
-          $descriptionEs = ""
-          if (Test-Path $descPathEs) {
-            $descriptionEs = Get-Content $descPathEs -Raw -Encoding UTF8
-            $descriptionEs = $descriptionEs -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
-            echo "Spanish description loaded"
-          } else {
-            $descriptionEs = "[h1]Liberation Builder Helper v$env:VERSION[/h1]`n`nMod para crear presets de KP Liberation desde el editor 3DEN"
-            echo "Using default Spanish description"
-          }
-
-          # Create VDF file with localized descriptions
+          # Create VDF file
           $vdf = "`"workshopitem`"`n"
           $vdf += "{`n"
           $vdf += "    `"appid`"            `"$env:STEAM_APP_ID`"`n"
           $vdf += "    `"publishedfileid`"  `"$env:STEAM_WORKSHOP_ID`"`n"
           $vdf += "    `"contentfolder`"    `"$contentPath`"`n"
           $vdf += "    `"changenote`"       `"v$env:VERSION - Automatic release`"`n"
-          $vdf += "    `"description`"      `"$descriptionEn`"`n"
+          $vdf += "    `"description`"      `"$description`"`n"
           $vdf += "}"
 
           $vdf | Out-File -FilePath $vdfPath -Encoding UTF8 -NoNewline
@@ -376,70 +362,3 @@ jobs:
             echo "Upload completed successfully!"
           }
 
-      - name: Update Workshop descriptions (localized)
-        shell: pwsh
-        env:
-          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
-          STEAM_WORKSHOP_ID: ${{ vars.STEAM_WORKSHOP_ID }}
-          VERSION: ${{ needs.build.outputs.version }}
-        run: |
-          if (-not $env:STEAM_API_KEY) {
-            Write-Warning "STEAM_API_KEY not configured. Skipping localized descriptions update."
-            exit 0
-          }
-
-          $descPathEn = "${{ github.workspace }}\workshop_description_en.txt"
-          $descPathEs = "${{ github.workspace }}\workshop_description_es.txt"
-
-          # Function to update description for a language
-          function Update-WorkshopDescription {
-            param($Language, $Description)
-
-            # Try Partner API first, then public API
-            $endpoints = @(
-              "https://partner.steam-api.com/IPublishedFileService/UpdateDetails/v1/",
-              "https://api.steampowered.com/IPublishedFileService/UpdateDetails/v1/"
-            )
-
-            $body = @{
-              key = $env:STEAM_API_KEY
-              publishedfileid = $env:STEAM_WORKSHOP_ID
-              language = $Language
-              description = $Description
-            }
-
-            foreach ($endpoint in $endpoints) {
-              try {
-                echo "Trying endpoint: $endpoint"
-                $response = Invoke-RestMethod -Uri $endpoint `
-                  -Method Post -Body $body -ContentType "application/x-www-form-urlencoded"
-
-                if ($response.response) {
-                  echo "Successfully updated description for language $Language"
-                  return $true
-                }
-              } catch {
-                echo "Endpoint failed: $($_.Exception.Message)"
-              }
-            }
-            Write-Warning "Could not update language $Language with any endpoint"
-            return $false
-          }
-
-          # Read and update English description (language = 0)
-          if (Test-Path $descPathEn) {
-            $descEn = Get-Content $descPathEn -Raw -Encoding UTF8
-            $descEn = $descEn -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
-            echo "Updating English description..."
-            Update-WorkshopDescription -Language 0 -Description $descEn
-          }
-
-          # Read and update Spanish description (language = 5)
-          if (Test-Path $descPathEs) {
-            $descEs = Get-Content $descPathEs -Raw -Encoding UTF8
-            $descEs = $descEs -replace "\[h1\]Liberation Builder Helper\[/h1\]", "[h1]Liberation Builder Helper v$env:VERSION[/h1]"
-            echo "Updating Spanish description..."
-            Update-WorkshopDescription -Language 5 -Description $descEs
-          }
-
-          echo "Localized descriptions update completed!"
