@@ -110,12 +110,10 @@ jobs:
 
           echo "Updated $FILE to version $MAJOR.$MINOR.$PATCH.$BUILD"
 
-      - name: Install armake2
+      - name: Install Rust and armake2
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          curl -L https://github.com/KoffeinFlum662/armake2/releases/download/v0.3.7/armake2 -o armake2
-          chmod +x armake2
-          sudo mv armake2 /usr/local/bin/
+          cargo install armake2
 
       - name: Build PBO with armake2
         if: steps.check_tag.outputs.exists == 'false'
