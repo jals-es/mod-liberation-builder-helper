@@ -110,23 +110,27 @@ jobs:
 
           echo "Updated $FILE to version $MAJOR.$MINOR.$PATCH.$BUILD"
 
-      - name: Setup HEMTT
-        if: steps.check_tag.outputs.exists == 'false'
-        uses: arma-actions/hemtt@v1
-
-      - name: Build PBO with HEMTT
+      - name: Install armake2
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          hemtt build
+          curl -L https://github.com/KoffeinFlum662/armake2/releases/download/v0.4.2/armake2_0.4.2-1_amd64.deb -o armake2.deb
+          sudo dpkg -i armake2.deb
+
+      - name: Build PBO with armake2
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          mkdir -p build/$MOD_NAME/addons
+          armake2 pack addons/main build/$MOD_NAME/addons/main.pbo
+          cp mod.cpp build/$MOD_NAME/
+          cp workshop_preview.png build/$MOD_NAME/ || true
           echo "=== Build output ==="
-          ls -la .hemttout/build/
-          ls -la ".hemttout/build/$MOD_NAME/" || true
-          ls -la ".hemttout/build/$MOD_NAME/addons/" || true
+          ls -la build/$MOD_NAME/
+          ls -la build/$MOD_NAME/addons/
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          cd .hemttout/build
+          cd build
           zip -r "../../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
           cd ../..
           ls -la *.zip
@@ -194,7 +198,7 @@ jobs:
             **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && 'Auto-upload attempted' || 'Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
-            .hemttout/build/${{ env.MOD_NAME }}/addons/main.pbo
+            build/${{ env.MOD_NAME }}/addons/main.pbo
           draft: false
           prerelease: false
         env:
@@ -205,7 +209,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mod-build
-          path: .hemttout/build/${{ env.MOD_NAME }}/
+          path: build/${{ env.MOD_NAME }}/
           retention-days: 1
 
   # ============================================
