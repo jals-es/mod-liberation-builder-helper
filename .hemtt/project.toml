@@ -8,3 +8,9 @@ include = [
     "mod.cpp",
     "workshop_preview.png"
 ]
+
+[lints.sqf]
+enabled = false
+
+[lints.config]
+enabled = false
