@@ -96,7 +96,7 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         shell: bash
         run: |
-          FILE="$MOD_NAME/addons/main/script_component.hpp"
+          FILE="addons/main/script_component.hpp"
           VERSION="${{ steps.version.outputs.version }}"
           MAJOR="${{ steps.version.outputs.major }}"
           MINOR="${{ steps.version.outputs.minor }}"
@@ -112,32 +112,25 @@ jobs:
 
           echo "Updated $FILE to version $VERSION"
 
-      - name: Install JAPM (PBO packer)
+      - name: Setup HEMTT
         if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          curl -L https://github.com/RaJiska/JAPM/releases/download/v0.8/JAPM_Linux_x86_64 -o japm
-          chmod +x japm
-          sudo mv japm /usr/local/bin/
+        uses: arma-actions/hemtt@v1
 
-      - name: Build PBO
+      - name: Build PBO with HEMTT
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          mkdir -p build/$MOD_NAME/addons
-          japm "$MOD_NAME/addons/main" "build/$MOD_NAME/addons/main.pbo"
-          cp "$MOD_NAME/mod.cpp" "build/$MOD_NAME/"
-          if [ -f "$MOD_NAME/workshop_preview.png" ]; then
-            cp "$MOD_NAME/workshop_preview.png" "build/$MOD_NAME/"
-          fi
-          echo "PBO built successfully"
-          ls -la "build/$MOD_NAME/"
-          ls -la "build/$MOD_NAME/addons/"
+          hemtt build --release
+          echo "=== Build output ==="
+          ls -la .hemttout/release/
+          ls -la ".hemttout/release/$MOD_NAME/" || true
+          ls -la ".hemttout/release/$MOD_NAME/addons/" || true
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          cd build
-          zip -r "../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
-          cd ..
+          cd .hemttout/release
+          zip -r "../../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
+          cd ../..
           ls -la *.zip
 
       - name: Commit version update
@@ -146,7 +139,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add "$MOD_NAME/addons/main/script_component.hpp"
+          git add "addons/main/script_component.hpp"
 
           if git diff --staged --quiet; then
             echo "No changes to commit"
@@ -203,7 +196,7 @@ jobs:
             **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && 'Auto-upload attempted' || 'Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
-            build/${{ env.MOD_NAME }}/addons/main.pbo
+            .hemttout/release/${{ env.MOD_NAME }}/addons/main.pbo
           draft: false
           prerelease: false
         env:
@@ -214,7 +207,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mod-build
-          path: build/${{ env.MOD_NAME }}/
+          path: .hemttout/release/${{ env.MOD_NAME }}/
           retention-days: 1
 
   # ============================================
@@ -362,4 +355,3 @@ jobs:
           } else {
             echo "Upload completed successfully!"
           }
-

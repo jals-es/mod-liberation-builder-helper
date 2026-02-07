@@ -7,52 +7,31 @@ Mod para Arma 3 que facilita la construccion de misiones Liberation, permitiendo
 ## Estructura del Proyecto
 
 ```
-mod-make-liberation/
+mod-liberation-builder-helper/
 ├── CLAUDE.md                 # Este archivo - contexto para Claude
-├── plan.md                   # Plan de implementacion y prompt inicial
-└── @LiberationBuilder/       # Carpeta del mod (PBO)
-    ├── mod.cpp               # Metadatos del mod
-    └── addons/
-        └── main/
-            ├── $PBOPREFIX$           # x\lbh\addons\main
-            ├── config.cpp            # CfgPatches, CfgFunctions, Cfg3DEN
-            ├── script_component.hpp  # Macros del componente
-            ├── XEH_preInit.sqf       # Inicializacion CBA
-            ├── XEH_postInit.sqf      # Post-inicializacion
-            ├── stringtable.xml       # Traducciones ES/EN
-            ├── functions/            # 24 funciones SQF
-            │   ├── fn_init.sqf
-            │   ├── fn_loadData.sqf
-            │   ├── fn_saveData.sqf
-            │   ├── fn_showNotification.sqf
-            │   ├── fn_addClassname.sqf
-            │   ├── fn_removeClassname.sqf
-            │   ├── fn_hasClassname.sqf
-            │   ├── fn_detectObjectType.sqf
-            │   ├── fn_getCategories.sqf
-            │   ├── fn_addSelectedObjects.sqf
-            │   ├── fn_openPanel.sqf
-            │   ├── fn_onPresetChanged.sqf
-            │   ├── fn_onCategoryChanged.sqf
-            │   ├── fn_onSearchChanged.sqf
-            │   ├── fn_refreshList.sqf
-            │   ├── fn_removeSelected.sqf
-            │   ├── fn_clearCategory.sqf
-            │   ├── fn_addManualClassname.sqf
-            │   ├── fn_openCostDialog.sqf
-            │   ├── fn_confirmCost.sqf
-            │   ├── fn_openCategorySelect.sqf
-            │   ├── fn_confirmCategory.sqf
-            │   ├── fn_exportPreset.sqf
-            │   ├── fn_formatCostArray.sqf
-            │   ├── fn_formatSimpleArray.sqf
-            │   ├── fn_arsenalInit.sqf
-            │   ├── fn_arsenalExport.sqf
-            │   └── fn_parseLoadout.sqf
-            └── ui/
-                ├── defines.hpp       # Controles base UI
-                └── dialogs.hpp       # Dialogos del mod
+├── hemtt.toml                # Configuracion de HEMTT (empaquetador PBO)
+├── mod.cpp                   # Metadatos del mod
+├── workshop_preview.png      # Imagen para Steam Workshop
+├── version.txt               # Version actual del mod
+└── addons/                   # Carpeta de addons (estructura HEMTT)
+    └── main/
+        ├── $PBOPREFIX$           # x\lbh\addons\main
+        ├── config.cpp            # CfgPatches, CfgFunctions, Cfg3DEN
+        ├── script_component.hpp  # Macros del componente
+        ├── XEH_preInit.sqf       # Inicializacion CBA
+        ├── XEH_postInit.sqf      # Post-inicializacion
+        ├── stringtable.xml       # Traducciones ES/EN
+        ├── functions/            # Funciones SQF
+        │   ├── fn_init.sqf
+        │   ├── fn_loadData.sqf
+        │   ├── fn_saveData.sqf
+        │   └── ...
+        └── ui/
+            ├── defines.hpp       # Controles base UI
+            └── dialogs.hpp       # Dialogos del mod
 ```
+
+**Nota**: HEMTT genera automaticamente la carpeta `@LiberationBuilder/` al compilar en `.hemttout/release/`.
 
 ## Referencia: KP Liberation
 
@@ -78,13 +57,14 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 - **UI**: Arma 3 Dialog system
 - **Persistencia**: profileNamespace
 - **Dependencias**: CBA_A3 (requerido), ACE3 (opcional)
-- **Empaquetado**: PBO (Packed Bohemia Object)
+- **Empaquetado**: HEMTT (Hemi Easy Mod Tool Thing)
 
 ## Comandos Utiles
 
 ```bash
-# Empaquetar addon (requiere Arma 3 Tools)
-# Se usa AddonBuilder o armake2
+# Compilar PBO localmente con HEMTT
+hemtt build           # Build de desarrollo
+hemtt build --release # Build para release (con firma)
 
 # Validar sintaxis SQF
 # sqfvm --parse archivo.sqf
@@ -112,7 +92,7 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 3. **Panel de gestion**:
    - Seleccionar preset y categoria
    - Buscar classnames
-   - Añadir manual, eliminar, exportar
+   - Anadir manual, eliminar, exportar
 
 4. **ACE Arsenal**: Ctrl+Shift+E para exportar loadout actual
 
@@ -120,7 +100,7 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 
 ### GitHub Actions
 - **release.yml**: Se dispara al cambiar `version.txt` en master
-  - Build job (Ubuntu): Compila PBO con JAPM, crea GitHub Release
+  - Build job (Ubuntu): Compila PBO con HEMTT, crea GitHub Release
   - Steam-upload job (Windows): Sube a Steam Workshop con SteamCMD
 
 - **pr-version-check.yml**: Verifica en PRs a master que la version sea mayor
@@ -139,7 +119,7 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 - `STEAM_PASSWORD`: [configurado]
 - `STEAM_WORKSHOP_ID`: 3655694577
 
-## Estado Actual (2026-01-29)
+## Estado Actual (2026-02-07)
 
 ### Funcionando
 - Mod carga correctamente en Arma 3
@@ -156,7 +136,7 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 ### Problemas Resueltos
 - `$PBOPREFIX$` sin newline al final
 - Estructura de menus 3DEN: usar `display3DEN > Controls > MenuStrip > Items`
-- JAPM para empaquetar PBOs (armake ya no funciona)
+- JAPM generaba PBOs corruptos -> Migrado a HEMTT
 
 ## Notas para Claude
 
@@ -165,4 +145,4 @@ El proyecto de referencia esta en `../kp_liberation_DEVKIT/`. Los archivos de pr
 3. La deteccion automatica usa `isKindOf` y herencia de clases
 4. El mod requiere CBA_A3 para Event Handlers extendidos
 5. Los menus de 3DEN deben definirse en `display3DEN`, no en `Cfg3DEN > Menu`
-6. Para testing local: empaquetar con PBO Manager desde `@LiberationBuilder/addons/main/`
+6. Para testing local: `hemtt build` y copiar `.hemttout/build/@LiberationBuilder/` a carpeta de mods

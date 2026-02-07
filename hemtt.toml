@@ -1,0 +1,11 @@
+[project]
+name = "LiberationBuilder"
+prefix = "lbh"
+author = "LBH Team"
+mainprefix = "x"
+
+[files]
+include = [
+    "mod.cpp",
+    "workshop_preview.png"
+]
