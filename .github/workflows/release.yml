@@ -117,16 +117,16 @@ jobs:
       - name: Build PBO with HEMTT
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          hemtt release
+          hemtt build
           echo "=== Build output ==="
-          ls -la .hemttout/release/
-          ls -la ".hemttout/release/$MOD_NAME/" || true
-          ls -la ".hemttout/release/$MOD_NAME/addons/" || true
+          ls -la .hemttout/build/
+          ls -la ".hemttout/build/$MOD_NAME/" || true
+          ls -la ".hemttout/build/$MOD_NAME/addons/" || true
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          cd .hemttout/release
+          cd .hemttout/build
           zip -r "../../LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip" "$MOD_NAME"
           cd ../..
           ls -la *.zip
@@ -194,7 +194,7 @@ jobs:
             **Steam Workshop:** ${{ steps.prev_version.outputs.is_semver_change == 'true' && 'Auto-upload attempted' || 'Skipped (build-only change)' }}
           files: |
             LiberationBuilderHelper_v${{ steps.version.outputs.version }}.zip
-            .hemttout/release/${{ env.MOD_NAME }}/addons/main.pbo
+            .hemttout/build/${{ env.MOD_NAME }}/addons/main.pbo
           draft: false
           prerelease: false
         env:
@@ -205,7 +205,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mod-build
-          path: .hemttout/release/${{ env.MOD_NAME }}/
+          path: .hemttout/build/${{ env.MOD_NAME }}/
           retention-days: 1
 
   # ============================================
