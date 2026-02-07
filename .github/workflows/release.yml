@@ -119,13 +119,33 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           mkdir -p build/$MOD_NAME/addons
+          mkdir -p build/$MOD_NAME/keys
           armake2 pack addons/main build/$MOD_NAME/addons/main.pbo
           cp mod.cpp build/$MOD_NAME/
           cp workshop_preview.png build/$MOD_NAME/ || true
           cp workshop_preview.paa build/$MOD_NAME/ || true
+          cp keys/*.bikey build/$MOD_NAME/keys/ || true
           echo "=== Build output ==="
           ls -la build/$MOD_NAME/
           ls -la build/$MOD_NAME/addons/
+
+      - name: Sign PBO
+        if: steps.check_tag.outputs.exists == 'false' && env.BISIGN_PRIVATE_KEY != ''
+        env:
+          BISIGN_PRIVATE_KEY: ${{ secrets.BISIGN_PRIVATE_KEY }}
+        run: |
+          # Decode private key from base64
+          echo "$BISIGN_PRIVATE_KEY" | base64 -d > LiberationBuilder.biprivatekey
+
+          # Sign the PBO
+          armake2 sign LiberationBuilder.biprivatekey build/$MOD_NAME/addons/main.pbo
+
+          # Clean up private key
+          rm -f LiberationBuilder.biprivatekey
+
+          echo "=== Signed files ==="
+          ls -la build/$MOD_NAME/addons/
+          ls -la build/$MOD_NAME/keys/
 
       - name: Create release ZIP
         if: steps.check_tag.outputs.exists == 'false'
