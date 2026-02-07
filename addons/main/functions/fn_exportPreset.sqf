@@ -15,7 +15,15 @@
 
 #include "..\script_component.hpp"
 
-params [["_targetPreset", "", [""]]];
+// Handle case when called from button (receives control instead of string)
+private _targetPreset = "";
+if (_this isEqualType "") then {
+    _targetPreset = _this;
+} else {
+    if (_this isEqualType [] && {count _this > 0} && {(_this select 0) isEqualType ""}) then {
+        _targetPreset = _this select 0;
+    };
+};
 
 private _output = [];
 

@@ -122,6 +122,7 @@ jobs:
           armake2 pack addons/main build/$MOD_NAME/addons/main.pbo
           cp mod.cpp build/$MOD_NAME/
           cp workshop_preview.png build/$MOD_NAME/ || true
+          cp workshop_preview.paa build/$MOD_NAME/ || true
           echo "=== Build output ==="
           ls -la build/$MOD_NAME/
           ls -la build/$MOD_NAME/addons/

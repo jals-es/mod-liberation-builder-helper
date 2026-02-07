@@ -6,6 +6,7 @@ mainprefix = "x"
 [files]
 include = [
     "mod.cpp",
+    "workshop_preview.paa",
     "workshop_preview.png"
 ]
 
