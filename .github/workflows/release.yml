@@ -119,7 +119,7 @@ jobs:
       - name: Build PBO with HEMTT
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          hemtt build --release
+          hemtt release
           echo "=== Build output ==="
           ls -la .hemttout/release/
           ls -la ".hemttout/release/$MOD_NAME/" || true
