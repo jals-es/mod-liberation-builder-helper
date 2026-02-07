@@ -30,11 +30,13 @@ if (_preset isEqualTo "" || {_category isEqualTo ""} || {_classname isEqualTo ""
     false
 };
 
-// Check if already exists
-if ([_preset, _category, _classname] call LBH_fnc_hasClassname) exitWith {
-    diag_log format ["[LBH] Classname %1 already exists in %2/%3", _classname, _preset, _category];
-    [format ["Classname %1 already exists!", _classname], 1, 2] call LBH_fnc_showNotification;
-    false
+// Check if already exists (allow duplicates for opfor and resistance presets)
+if !(_preset in ["opfor", "resistance"]) then {
+    if ([_preset, _category, _classname] call LBH_fnc_hasClassname) exitWith {
+        diag_log format ["[LBH] Classname %1 already exists in %2/%3", _classname, _preset, _category];
+        [format ["Classname %1 already exists!", _classname], 1, 2] call LBH_fnc_showNotification;
+        false
+    };
 };
 
 // Ensure preset exists

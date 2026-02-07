@@ -42,10 +42,19 @@ private _presetCombo = _display displayCtrl IDC_PRESET_COMBO;
     _presetCombo lbSetData [lbSize _presetCombo - 1, _presetName];
 } forEach LBH_presets;
 
-// Select first preset
-_presetCombo lbSetCurSel 0;
+// Restore last selected preset or select first
+private _lastPreset = missionNamespace getVariable ["LBH_lastPreset", ""];
+private _presetIndex = 0;
+if (_lastPreset != "") then {
+    for "_i" from 0 to (lbSize _presetCombo - 1) do {
+        if ((_presetCombo lbData _i) isEqualTo _lastPreset) exitWith {
+            _presetIndex = _i;
+        };
+    };
+};
+_presetCombo lbSetCurSel _presetIndex;
 
-// Trigger preset change to populate categories
+// Trigger preset change to populate categories (this will also restore category)
 call LBH_fnc_onPresetChanged;
 
 diag_log "[LBH] Management panel opened";

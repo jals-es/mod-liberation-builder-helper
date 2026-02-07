@@ -24,6 +24,9 @@ if (_selIndex < 0) exitWith {};
 
 private _preset = _presetCombo lbData _selIndex;
 
+// Save last selected preset
+missionNamespace setVariable ["LBH_lastPreset", _preset];
+
 // Clear and populate category combo
 lbClear _categoryCombo;
 
@@ -43,9 +46,18 @@ private _categories = _preset call LBH_fnc_getCategories;
     _categoryCombo lbSetTooltip [lbSize _categoryCombo - 1, _tooltip];
 } forEach _categories;
 
-// Select first category
+// Restore last selected category for this preset, or select first
+private _lastCategory = missionNamespace getVariable ["LBH_lastCategory_" + _preset, ""];
+private _categoryIndex = 0;
+if (_lastCategory != "") then {
+    for "_i" from 0 to (lbSize _categoryCombo - 1) do {
+        if ((_categoryCombo lbData _i) isEqualTo _lastCategory) exitWith {
+            _categoryIndex = _i;
+        };
+    };
+};
 if (lbSize _categoryCombo > 0) then {
-    _categoryCombo lbSetCurSel 0;
+    _categoryCombo lbSetCurSel _categoryIndex;
 };
 
 // Refresh list

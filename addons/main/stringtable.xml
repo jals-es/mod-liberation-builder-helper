@@ -183,8 +183,8 @@
             <Spanish>Añadir al Arsenal</Spanish>
         </Key>
         <Key ID="STR_LBH_Menu_OpenPanel">
-            <English>Open Management Panel</English>
-            <Spanish>Abrir Panel de Gestión</Spanish>
+            <English>Open Management Panel (Ctrl+Shift+L)</English>
+            <Spanish>Abrir Panel de Gestión (Ctrl+Shift+L)</Spanish>
         </Key>
         <Key ID="STR_LBH_Menu_ExportAll">
             <English>Export All Presets</English>

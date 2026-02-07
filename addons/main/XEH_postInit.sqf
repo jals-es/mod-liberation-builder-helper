@@ -14,7 +14,4 @@ LBH_initialized = true;
 
 diag_log "[LBH] PostInit completed - Liberation Builder Helper ready";
 
-// Show welcome notification in 3DEN
-if (is3DEN) then {
-    ["Liberation Builder Helper loaded. Use Tools > Liberation Builder to add classnames.", 0, 3] call BIS_fnc_3DENNotification;
-};
+// Keybind registration is now handled in XEH_preInit.sqf

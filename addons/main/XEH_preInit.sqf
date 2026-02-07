@@ -109,4 +109,38 @@ LBH_categories = createHashMapFromArray [
 // Initialize data storage
 call LBH_fnc_init;
 
+// Register keybind when in 3DEN editor
+if (is3DEN) then {
+    // Use spawn to ensure display is ready
+    [] spawn {
+        // Small delay to ensure display is fully initialized
+        sleep 0.5;
+
+        private _display = findDisplay 313;
+
+        if (!isNull _display && isNil "LBH_keybindRegistered") then {
+            LBH_keybindRegistered = true;
+
+            _display displayAddEventHandler ["KeyDown", {
+                params ["_display", "_key", "_shift", "_ctrl", "_alt"];
+                // DIK_L = 0x26 (38), Ctrl+Shift+L
+                if (_key == 0x26 && _ctrl && _shift && !_alt) then {
+                    private _panelDisplay = uiNamespace getVariable ["LBH_MainPanel", displayNull];
+                    if (isNull _panelDisplay) then {
+                        call LBH_fnc_openPanel;
+                    } else {
+                        closeDialog 0;
+                    };
+                    true
+                } else {
+                    false
+                };
+            }];
+
+            // Show welcome notification
+            ["Liberation Builder Helper loaded. Press Ctrl+Shift+L to open panel.", 0, 3] call BIS_fnc_3DENNotification;
+        };
+    };
+};
+
 diag_log "[LBH] PreInit completed";

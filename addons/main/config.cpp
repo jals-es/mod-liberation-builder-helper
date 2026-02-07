@@ -8,9 +8,9 @@ class CfgPatches {
         url = "";
         units[] = {};
         weapons[] = {};
-        requiredVersion = 2.00;
+        requiredVersion = 2.02;
         requiredAddons[] = {"A3_3DEN", "cba_main", "cba_xeh"};
-        version = VERSION;
+        version = VERSION_STR;
         versionStr = VERSION_STR;
         versionAr[] = {VERSION_AR};
     };
@@ -71,8 +71,16 @@ class CfgFunctions {
             // 3DEN Editor functions
             class addSelectedObjects {};
 
+            // Autodetect confirmation
+            class openAutodetectConfirm {};
+            class confirmAutodetect {};
+            class onAutodetectSelect {};
+            class onAutodetectCategoryChange {};
+            class applyAutodetectCategory {};
+
             // Export functions
             class exportPreset {};
+            class exportCurrentCategory {};
             class formatCostArray {};
             class formatSimpleArray {};
 
@@ -120,8 +128,7 @@ class Cfg3DEN {
                 "LBH_AddCivilians",
                 "LBH_AddArsenal",
                 "LBH_Separator1",
-                "LBH_OpenPanel",
-                "LBH_ExportAll"
+                "LBH_OpenPanel"
             };
         };
 
@@ -289,7 +296,7 @@ class Cfg3DEN {
 
         // Direct actions
         class LBH_OpenPanel {
-            text = "Open Management Panel";
+            text = "Open Management Panel (Ctrl+Shift+L)";
             picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\icon_ca.paa";
             action = "call LBH_fnc_openPanel;";
         };
@@ -338,7 +345,6 @@ class display3DEN {
                     picture = "";
                     items[] = {
                         "LBH_OpenPanel",
-                        "LBH_ExportAll",
                         "LBH_SaveToMission",
                         "LBH_Separator1",
                         "LBH_AddBlufor",
@@ -352,7 +358,7 @@ class display3DEN {
                 };
 
                 class LBH_OpenPanel {
-                    text = "Open Management Panel";
+                    text = "Open Management Panel (Ctrl+Shift+L)";
                     picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\icon_ca.paa";
                     action = "call LBH_fnc_openPanel;";
                 };

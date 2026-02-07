@@ -36,6 +36,18 @@ if (isNull _display) exitWith {
     diag_log "[LBH] Failed to open cost dialog";
 };
 
+// Set category display (Adding to: PRESET > CATEGORY)
+private _presetDisplay = toUpper _preset;
+private _categoryDisplay = _category;
+// Try to get display name from categories
+private _categories = LBH_categories getOrDefault [_preset, []];
+{
+    if ((_x select 0) isEqualTo _category) exitWith {
+        _categoryDisplay = _x select 1;
+    };
+} forEach _categories;
+(_display displayCtrl IDC_COST_CATEGORY) ctrlSetText format ["Adding to: %1 > %2", _presetDisplay, _categoryDisplay];
+
 // Set classname display
 (_display displayCtrl IDC_COST_CLASSNAME) ctrlSetText _classname;
 

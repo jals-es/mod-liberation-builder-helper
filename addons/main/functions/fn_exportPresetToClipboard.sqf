@@ -113,9 +113,8 @@ if (count _singleVars > 0) then {
     {
         _x params ["_key", "_displayName", "_format"];
         private _value = _presetData getOrDefault [_key, ""];
-        if (_value != "") then {
-            _output pushBack format ["%1 = ""%2"";", _key, _value];
-        };
+        // Always include single values, even if empty
+        _output pushBack format ["%1 = ""%2"";", _key, _value];
     } forEach _singleVars;
     _output pushBack "";
 };
@@ -126,11 +125,10 @@ if (count _costArrays > 0) then {
     {
         _x params ["_key", "_displayName", "_format"];
         private _items = _presetData getOrDefault [_key, []];
-        if (count _items > 0) then {
-            _output pushBack format ["// %1", _displayName];
-            _output pushBack ([_items, _key] call LBH_fnc_formatCostArray);
-            _output pushBack "";
-        };
+        // Always include arrays, even if empty
+        _output pushBack format ["// %1", _displayName];
+        _output pushBack ([_items, _key] call LBH_fnc_formatCostArray);
+        _output pushBack "";
     } forEach _costArrays;
 };
 
@@ -140,11 +138,10 @@ if (count _simpleArrays > 0) then {
     {
         _x params ["_key", "_displayName", "_format"];
         private _items = _presetData getOrDefault [_key, []];
-        if (count _items > 0) then {
-            _output pushBack format ["// %1", _displayName];
-            _output pushBack ([_items, _key] call LBH_fnc_formatSimpleArray);
-            _output pushBack "";
-        };
+        // Always include arrays, even if empty
+        _output pushBack format ["// %1", _displayName];
+        _output pushBack ([_items, _key] call LBH_fnc_formatSimpleArray);
+        _output pushBack "";
     } forEach _simpleArrays;
 };
 

@@ -55,6 +55,9 @@ private _itemCount = 0;
 switch (_formatType) do {
     case "cost": {
         // Cost format: [[classname, supplies, ammo, fuel], ...]
+        // Sort by classname (first element) so duplicates appear together
+        private _sortedData = +_categoryData;
+        _sortedData sort true;
         {
             _x params ["_classname", "_supplies", "_ammo", "_fuel"];
 
@@ -66,11 +69,14 @@ switch (_formatType) do {
             private _rowIndex = _list lnbAddRow [_classname, str _supplies, str _ammo, str _fuel];
             _list lnbSetData [[_rowIndex, 0], _classname];
             _itemCount = _itemCount + 1;
-        } forEach _categoryData;
+        } forEach _sortedData;
     };
 
     case "simple": {
         // Simple format: [classname, ...]
+        // Sort alphabetically so duplicates appear together
+        private _sortedData = +_categoryData;
+        _sortedData sort true;
         {
             private _classname = _x;
 
@@ -87,7 +93,7 @@ switch (_formatType) do {
             private _rowIndex = _list lnbAddRow [_classname, "-", "-", "-"];
             _list lnbSetData [[_rowIndex, 0], _classname];
             _itemCount = _itemCount + 1;
-        } forEach _categoryData;
+        } forEach _sortedData;
     };
 
     case "single": {
