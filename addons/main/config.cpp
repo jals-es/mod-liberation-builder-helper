@@ -60,6 +60,7 @@ class CfgFunctions {
             // Cost dialog
             class openCostDialog {};
             class confirmCost {};
+            class editCost {};
 
             // Text input dialog
             class confirmTextInput {};
@@ -100,6 +101,12 @@ class CfgFunctions {
             class saveCurrentPathToRecent {};
             class browseMissionPath {};
 
+            // Import functions
+            class openImportWizard {};
+            class openImportTextArea {};
+            class processImport {};
+            class refreshImportCounts {};
+
             // Data management
             class clearAllData {};
             class doClearAllData {};
@@ -128,8 +135,14 @@ class Cfg3DEN {
                 "LBH_AddCivilians",
                 "LBH_AddArsenal",
                 "LBH_Separator1",
-                "LBH_OpenPanel"
+                "LBH_OpenPanel",
+                "LBH_ImportFromClipboard"
             };
+        };
+
+        class LBH_ImportFromClipboard {
+            text = "Import from Clipboard...";
+            action = "createDialog 'LBH_ImportWizard';";
         };
 
         // BLUFOR submenu
@@ -346,6 +359,7 @@ class display3DEN {
                     items[] = {
                         "LBH_OpenPanel",
                         "LBH_SaveToMission",
+                        "LBH_ImportFromClipboard",
                         "LBH_Separator1",
                         "LBH_AddBlufor",
                         "LBH_AddOpfor",
@@ -371,6 +385,11 @@ class display3DEN {
                     text = "Save to Mission...";
                     picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\cargotab_ca.paa";
                     action = "createDialog 'LBH_ExportWizard';";
+                };
+                class LBH_ImportFromClipboard {
+                    text = "Import from Clipboard...";
+                    picture = "\A3\ui_f\data\gui\rsc\rscdisplayarsenal\cargotab_ca.paa";
+                    action = "createDialog 'LBH_ImportWizard';";
                 };
                 class LBH_Separator1 {
                     text = "";

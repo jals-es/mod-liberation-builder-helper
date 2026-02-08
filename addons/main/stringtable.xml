@@ -320,5 +320,63 @@
             <English>Save to Mission...</English>
             <Spanish>Guardar en Mision...</Spanish>
         </Key>
+
+        <!-- Import Wizard -->
+        <Key ID="STR_LBH_Menu_ImportFromClipboard">
+            <English>Import from Clipboard...</English>
+            <Spanish>Importar desde Portapapeles...</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Title">
+            <English>Import from KP Liberation Mission</English>
+            <Spanish>Importar desde Mision KP Liberation</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Instructions">
+            <English>Click 'Import' to paste content from a custom.sqf file</English>
+            <Spanish>Haz clic en 'Importar' para pegar contenido de un archivo custom.sqf</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_SourceFile">
+            <English>Source File</English>
+            <Spanish>Archivo Origen</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Import">
+            <English>Import</English>
+            <Spanish>Importar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Merge">
+            <English>Merge</English>
+            <Spanish>Combinar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Replace">
+            <English>Replace</English>
+            <Spanish>Reemplazar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_ModeHint">
+            <English>Merge: add new items without removing existing. Replace: clear and import fresh.</English>
+            <Spanish>Combinar: agregar items nuevos sin eliminar existentes. Reemplazar: limpiar e importar desde cero.</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_PasteHint">
+            <English>Paste the content of your custom.sqf file below:</English>
+            <Spanish>Pega el contenido de tu archivo custom.sqf abajo:</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Save">
+            <English>Save</English>
+            <Spanish>Guardar</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Success">
+            <English>Import successful! %1 items %2 into %3.</English>
+            <Spanish>Importacion exitosa! %1 items %2 en %3.</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_Empty">
+            <English>Import failed: textarea is empty!</English>
+            <Spanish>Importacion fallida: el area de texto esta vacia!</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_CompileError">
+            <English>Import failed: SQF compilation error! Check your syntax.</English>
+            <Spanish>Importacion fallida: error de compilacion SQF! Revisa la sintaxis.</Spanish>
+        </Key>
+        <Key ID="STR_LBH_Import_HelpText">
+            <English>Paste the content of a KP Liberation custom.sqf file to import its classnames. You can choose to merge with existing data or replace it.</English>
+            <Spanish>Pega el contenido de un archivo custom.sqf de KP Liberation para importar sus classnames. Puedes elegir combinar con datos existentes o reemplazarlos.</Spanish>
+        </Key>
     </Package>
 </Project>

@@ -103,25 +103,35 @@ class LBH_MainPanel {
             idc = IDC_BTN_ADD;
             x = "0.26 * safezoneW + safezoneX";
             y = "0.80 * safezoneH + safezoneY";
-            w = "0.09 * safezoneW";
+            w = "0.08 * safezoneW";
             h = "0.035 * safezoneH";
-            text = "Add Manual";
+            text = "Add";
             action = "call LBH_fnc_addManualClassname;";
+        };
+        class BtnEdit : LBH_RscButton {
+            idc = IDC_BTN_EDIT;
+            x = "0.345 * safezoneW + safezoneX";
+            y = "0.80 * safezoneH + safezoneY";
+            w = "0.07 * safezoneW";
+            h = "0.035 * safezoneH";
+            text = "Edit";
+            colorBackground[] = {0.3, 0.4, 0.6, 1};
+            action = "call LBH_fnc_editCost;";
         };
         class BtnRemove : LBH_RscButton {
             idc = IDC_BTN_REMOVE;
-            x = "0.36 * safezoneW + safezoneX";
+            x = "0.42 * safezoneW + safezoneX";
             y = "0.80 * safezoneH + safezoneY";
-            w = "0.09 * safezoneW";
+            w = "0.07 * safezoneW";
             h = "0.035 * safezoneH";
             text = "Remove";
             action = "call LBH_fnc_removeSelected;";
         };
         class BtnExport : LBH_RscButton {
             idc = IDC_BTN_EXPORT;
-            x = "0.46 * safezoneW + safezoneX";
+            x = "0.495 * safezoneW + safezoneX";
             y = "0.80 * safezoneH + safezoneY";
-            w = "0.09 * safezoneW";
+            w = "0.07 * safezoneW";
             h = "0.035 * safezoneH";
             text = "Export";
             colorBackground[] = {0.1, 0.5, 0.2, 1};
@@ -129,19 +139,19 @@ class LBH_MainPanel {
         };
         class BtnClear : LBH_RscButton {
             idc = IDC_BTN_CLEAR;
-            x = "0.56 * safezoneW + safezoneX";
+            x = "0.57 * safezoneW + safezoneX";
             y = "0.80 * safezoneH + safezoneY";
-            w = "0.09 * safezoneW";
+            w = "0.07 * safezoneW";
             h = "0.035 * safezoneH";
-            text = "Clear All";
+            text = "Clear";
             colorBackground[] = {0.5, 0.1, 0.1, 1};
             action = "call LBH_fnc_clearCategory;";
         };
         class BtnClose : LBH_RscButton {
             idc = IDC_BTN_CLOSE;
-            x = "0.66 * safezoneW + safezoneX";
+            x = "0.645 * safezoneW + safezoneX";
             y = "0.80 * safezoneH + safezoneY";
-            w = "0.08 * safezoneW";
+            w = "0.095 * safezoneW";
             h = "0.035 * safezoneH";
             text = "Close";
             action = "closeDialog 0;";
@@ -819,6 +829,444 @@ class LBH_TextInput {
             h = "0.03 * safezoneH";
             text = "Cancel";
             action = "LBH_textInputCallback = nil; closeDialog 0;";
+        };
+    };
+};
+
+// Import Wizard Dialog
+class LBH_ImportWizard {
+    idd = IDD_IMPORT_WIZARD;
+    movingEnable = 1;
+    enableSimulation = 1;
+    onLoad = "uiNamespace setVariable ['LBH_ImportWizard', _this select 0]; call LBH_fnc_openImportWizard;";
+    onUnload = "uiNamespace setVariable ['LBH_ImportWizard', displayNull];";
+
+    class ControlsBackground {
+        class Background : LBH_RscBackground {
+            x = "0.20 * safezoneW + safezoneX";
+            y = "0.15 * safezoneH + safezoneY";
+            w = "0.60 * safezoneW";
+            h = "0.70 * safezoneH";
+        };
+        class TitleBar : LBH_RscTitle {
+            x = "0.20 * safezoneW + safezoneX";
+            y = "0.15 * safezoneH + safezoneY";
+            w = "0.60 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "Import from KP Liberation Mission";
+        };
+    };
+
+    class Controls {
+        // Instructions
+        class InstructionsText : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.20 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Click 'Import' to paste content from a custom.sqf file";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+
+        // Table Header
+        class HeaderPreset : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.24 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Preset";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderItems : LBH_RscText {
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.24 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Items";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderTarget : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.24 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Source File";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+        class HeaderActions : LBH_RscText {
+            x = "0.66 * safezoneW + safezoneX";
+            y = "0.24 * safezoneH + safezoneY";
+            w = "0.12 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Actions";
+            style = ST_CENTER;
+            colorBackground[] = {0.25, 0.25, 0.3, 1};
+        };
+
+        // ========== BLUFOR Row ==========
+        class RowBluforBg : LBH_RscBackground {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.27 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelBlufor : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.28 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "BLUFOR";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.4, 0.6, 1, 1};
+        };
+        class CountBlufor : LBH_RscText {
+            idc = IDC_IMPORT_COUNT_BLUFOR;
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.28 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetBlufor : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.28 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "presets/blufor/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnImportBlufor : LBH_RscButton {
+            x = "0.67 * safezoneW + safezoneX";
+            y = "0.285 * safezoneH + safezoneY";
+            w = "0.09 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['blufor'] call LBH_fnc_openImportTextArea;";
+        };
+
+        // ========== OPFOR Row ==========
+        class RowOpforBg : LBH_RscBackground {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.34 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            colorBackground[] = {0.15, 0.15, 0.18, 1};
+        };
+        class LabelOpfor : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.35 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "OPFOR";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {1, 0.4, 0.4, 1};
+        };
+        class CountOpfor : LBH_RscText {
+            idc = IDC_IMPORT_COUNT_OPFOR;
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.35 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetOpfor : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.35 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "presets/opfor/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnImportOpfor : LBH_RscButton {
+            x = "0.67 * safezoneW + safezoneX";
+            y = "0.355 * safezoneH + safezoneY";
+            w = "0.09 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['opfor'] call LBH_fnc_openImportTextArea;";
+        };
+
+        // ========== Resistance Row ==========
+        class RowResistanceBg : LBH_RscBackground {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.41 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelResistance : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.42 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "Resistance";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.4, 0.9, 0.4, 1};
+        };
+        class CountResistance : LBH_RscText {
+            idc = IDC_IMPORT_COUNT_RESISTANCE;
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.42 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetResistance : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.42 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "presets/resistance/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnImportResistance : LBH_RscButton {
+            x = "0.67 * safezoneW + safezoneX";
+            y = "0.425 * safezoneH + safezoneY";
+            w = "0.09 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['resistance'] call LBH_fnc_openImportTextArea;";
+        };
+
+        // ========== Civilians Row ==========
+        class RowCiviliansBg : LBH_RscBackground {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.48 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            colorBackground[] = {0.15, 0.15, 0.18, 1};
+        };
+        class LabelCivilians : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.49 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "Civilians";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {0.8, 0.4, 0.8, 1};
+        };
+        class CountCivilians : LBH_RscText {
+            idc = IDC_IMPORT_COUNT_CIVILIANS;
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.49 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetCivilians : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.49 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "presets/civilians/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnImportCivilians : LBH_RscButton {
+            x = "0.67 * safezoneW + safezoneX";
+            y = "0.495 * safezoneH + safezoneY";
+            w = "0.09 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['civilians'] call LBH_fnc_openImportTextArea;";
+        };
+
+        // ========== Arsenal Row ==========
+        class RowArsenalBg : LBH_RscBackground {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.55 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            colorBackground[] = {0.18, 0.18, 0.22, 1};
+        };
+        class LabelArsenal : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.56 * safezoneH + safezoneY";
+            w = "0.14 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "Arsenal";
+            style = ST_CENTER + ST_VCENTER;
+            colorText[] = {1, 0.8, 0.3, 1};
+        };
+        class CountArsenal : LBH_RscText {
+            idc = IDC_IMPORT_COUNT_ARSENAL;
+            x = "0.36 * safezoneW + safezoneX";
+            y = "0.56 * safezoneH + safezoneY";
+            w = "0.08 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "0";
+            style = ST_CENTER + ST_VCENTER;
+        };
+        class TargetArsenal : LBH_RscText {
+            x = "0.44 * safezoneW + safezoneX";
+            y = "0.56 * safezoneH + safezoneY";
+            w = "0.22 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "arsenal_presets/custom.sqf";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+        class BtnImportArsenal : LBH_RscButton {
+            x = "0.67 * safezoneW + safezoneX";
+            y = "0.565 * safezoneH + safezoneY";
+            w = "0.09 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "['arsenal'] call LBH_fnc_openImportTextArea;";
+        };
+
+        // ========== Help Text ==========
+        class HelpText : LBH_RscText {
+            x = "0.22 * safezoneW + safezoneX";
+            y = "0.63 * safezoneH + safezoneY";
+            w = "0.56 * safezoneW";
+            h = "0.06 * safezoneH";
+            text = "Paste the content of a KP Liberation custom.sqf file to import its classnames. You can choose to merge with existing data or replace it.";
+            sizeEx = 0.022;
+            colorText[] = {0.6, 0.6, 0.6, 1};
+        };
+
+        // ========== Close Button ==========
+        class BtnClose : LBH_RscButton {
+            idc = IDC_IMPORT_CLOSE;
+            x = "0.64 * safezoneW + safezoneX";
+            y = "0.72 * safezoneH + safezoneY";
+            w = "0.12 * safezoneW";
+            h = "0.035 * safezoneH";
+            text = "Close";
+            action = "closeDialog 0;";
+        };
+    };
+};
+
+// Import Text Area Dialog
+class LBH_ImportTextArea {
+    idd = IDD_IMPORT_TEXTAREA;
+    movingEnable = 1;
+    enableSimulation = 1;
+    onLoad = "uiNamespace setVariable ['LBH_ImportTextArea', _this select 0];";
+    onUnload = "uiNamespace setVariable ['LBH_ImportTextArea', displayNull];";
+
+    class ControlsBackground {
+        class Background : LBH_RscBackground {
+            x = "0.25 * safezoneW + safezoneX";
+            y = "0.15 * safezoneH + safezoneY";
+            w = "0.50 * safezoneW";
+            h = "0.70 * safezoneH";
+        };
+        class TitleBar : LBH_RscTitle {
+            idc = IDC_IMPORT_TA_STATUS;
+            x = "0.25 * safezoneW + safezoneX";
+            y = "0.15 * safezoneH + safezoneY";
+            w = "0.50 * safezoneW";
+            h = "0.04 * safezoneH";
+            text = "Import Preset";
+        };
+    };
+
+    class Controls {
+        // Instructions
+        class Instructions : LBH_RscText {
+            x = "0.27 * safezoneW + safezoneX";
+            y = "0.20 * safezoneH + safezoneY";
+            w = "0.46 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Paste the content of your custom.sqf file below:";
+            sizeEx = 0.025;
+            colorText[] = {0.7, 0.7, 0.7, 1};
+        };
+
+        // Text area
+        class TextArea : LBH_RscEdit {
+            idc = IDC_IMPORT_TEXT;
+            x = "0.27 * safezoneW + safezoneX";
+            y = "0.23 * safezoneH + safezoneY";
+            w = "0.46 * safezoneW";
+            h = "0.40 * safezoneH";
+            style = ST_MULTI + ST_LEFT;
+            colorBackground[] = {0.1, 0.1, 0.1, 1};
+            sizeEx = 0.022;
+            text = "";
+        };
+
+        // Import mode section
+        class ModeLabel : LBH_RscText {
+            x = "0.27 * safezoneW + safezoneX";
+            y = "0.645 * safezoneH + safezoneY";
+            w = "0.10 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Import mode:";
+            sizeEx = 0.025;
+        };
+
+        class BtnMerge : LBH_RscButton {
+            idc = IDC_IMPORT_BTN_MERGE;
+            x = "0.37 * safezoneW + safezoneX";
+            y = "0.645 * safezoneH + safezoneY";
+            w = "0.10 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Merge";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "LBH_importMode = 'merge'; private _d = uiNamespace getVariable ['LBH_ImportTextArea', displayNull]; if (!isNull _d) then { (_d displayCtrl 8102) ctrlSetBackgroundColor [0.1, 0.5, 0.2, 1]; (_d displayCtrl 8103) ctrlSetBackgroundColor [0.3, 0.3, 0.35, 1]; };";
+        };
+        class BtnReplace : LBH_RscButton {
+            idc = IDC_IMPORT_BTN_REPLACE;
+            x = "0.48 * safezoneW + safezoneX";
+            y = "0.645 * safezoneH + safezoneY";
+            w = "0.10 * safezoneW";
+            h = "0.03 * safezoneH";
+            text = "Replace";
+            colorBackground[] = COLOR_BTN_NORMAL;
+            action = "LBH_importMode = 'replace'; private _d = uiNamespace getVariable ['LBH_ImportTextArea', displayNull]; if (!isNull _d) then { (_d displayCtrl 8103) ctrlSetBackgroundColor [0.6, 0.1, 0.1, 1]; (_d displayCtrl 8102) ctrlSetBackgroundColor [0.3, 0.3, 0.35, 1]; };";
+        };
+
+        // Mode hint text
+        class ModeHint : LBH_RscText {
+            x = "0.27 * safezoneW + safezoneX";
+            y = "0.68 * safezoneH + safezoneY";
+            w = "0.46 * safezoneW";
+            h = "0.025 * safezoneH";
+            text = "Merge: add new items without removing existing. Replace: clear and import fresh.";
+            sizeEx = 0.020;
+            colorText[] = {0.5, 0.5, 0.5, 1};
+        };
+
+        // Buttons
+        class BtnSave : LBH_RscButton {
+            idc = IDC_IMPORT_SAVE;
+            x = "0.48 * safezoneW + safezoneX";
+            y = "0.72 * safezoneH + safezoneY";
+            w = "0.12 * safezoneW";
+            h = "0.035 * safezoneH";
+            text = "Save";
+            colorBackground[] = {0.1, 0.5, 0.2, 1};
+            action = "call LBH_fnc_processImport;";
+        };
+        class BtnCancel : LBH_RscButton {
+            idc = IDC_IMPORT_CANCEL;
+            x = "0.61 * safezoneW + safezoneX";
+            y = "0.72 * safezoneH + safezoneY";
+            w = "0.12 * safezoneW";
+            h = "0.035 * safezoneH";
+            text = "Cancel";
+            action = "closeDialog 0;";
         };
     };
 };

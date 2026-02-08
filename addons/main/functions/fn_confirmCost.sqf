@@ -33,8 +33,30 @@ _supplies = _supplies max 0;
 _ammo = _ammo max 0;
 _fuel = _fuel max 0;
 
-// Add classname with costs
-[_preset, _category, _classname, [_supplies, _ammo, _fuel]] call LBH_fnc_addClassname;
+// Check if this is an edit or a new addition
+private _isEdit = !isNil "LBH_pendingCostEdit" && {LBH_pendingCostEdit};
+
+if (_isEdit) then {
+    // Edit mode: update existing item in-place
+    private _editIndex = LBH_pendingCostEditIndex;
+    private _presetData = LBH_data getOrDefault [_preset, createHashMap];
+    private _categoryData = _presetData getOrDefault [_category, []];
+
+    if (_editIndex >= 0 && {_editIndex < count _categoryData}) then {
+        _categoryData set [_editIndex, [_classname, _supplies, _ammo, _fuel]];
+        _presetData set [_category, _categoryData];
+        LBH_data set [_preset, _presetData];
+        call LBH_fnc_saveData;
+        diag_log format ["[LBH] Updated costs for %1: [%2, %3, %4]", _classname, _supplies, _ammo, _fuel];
+        [format ["Updated: %1", _classname], 0, 1.5] call LBH_fnc_showNotification;
+    };
+
+    LBH_pendingCostEdit = nil;
+    LBH_pendingCostEditIndex = nil;
+} else {
+    // Add mode: add new classname with costs
+    [_preset, _category, _classname, [_supplies, _ammo, _fuel]] call LBH_fnc_addClassname;
+};
 
 // Clear current pending data
 LBH_pendingCost = [];

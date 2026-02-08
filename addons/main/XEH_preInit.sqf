@@ -8,6 +8,8 @@ LBH_data = createHashMap;
 LBH_initialized = false;
 LBH_pendingCost = [];
 LBH_pendingCostQueue = [];
+LBH_importCurrentPreset = "";
+LBH_importMode = "merge";
 
 // Define preset structure
 LBH_presets = [

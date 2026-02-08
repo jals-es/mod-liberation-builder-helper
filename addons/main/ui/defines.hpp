@@ -329,6 +329,7 @@ class LBH_RscBackground {
 #define IDC_BTN_CLEAR       1008
 #define IDC_BTN_CLOSE       1009
 #define IDC_STATUS_TEXT     1010
+#define IDC_BTN_EDIT        1011
 
 // Cost Dialog IDCs (must match script_component.hpp)
 #define IDC_COST_SUPPLIES   2001
@@ -377,3 +378,21 @@ class LBH_RscBackground {
 #define IDC_TEXT_INPUT_EDIT     6002
 #define IDC_TEXT_INPUT_OK       6003
 #define IDC_TEXT_INPUT_CANCEL   6004
+
+// Import Wizard Dialog
+#define IDD_IMPORT_WIZARD           58007
+#define IDC_IMPORT_COUNT_BLUFOR     8001
+#define IDC_IMPORT_COUNT_OPFOR      8002
+#define IDC_IMPORT_COUNT_RESISTANCE 8003
+#define IDC_IMPORT_COUNT_CIVILIANS  8004
+#define IDC_IMPORT_COUNT_ARSENAL    8005
+#define IDC_IMPORT_CLOSE            8006
+
+// Import Text Area Dialog
+#define IDD_IMPORT_TEXTAREA         58008
+#define IDC_IMPORT_TEXT             8101
+#define IDC_IMPORT_BTN_MERGE       8102
+#define IDC_IMPORT_BTN_REPLACE     8103
+#define IDC_IMPORT_SAVE            8104
+#define IDC_IMPORT_CANCEL          8105
+#define IDC_IMPORT_TA_STATUS       8106
